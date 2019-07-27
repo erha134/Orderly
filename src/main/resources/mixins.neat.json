@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "vazkii.neat.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "client": [
+    "MixinHealthBarRender"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

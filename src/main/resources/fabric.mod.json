@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "neat",
+  "name": "Neat",
+  "version": "$version",
+  "environment": "client",
+  "license": "CC BY-NC-SA 3.0",
+  "icon": "assets/neat/icon.png",
+  "entrypoints": {
+	"client": [
+	  "vazkii.neat.Neat"
+	]
+  },
+  "contact": {
+	"homepage": "https://www.curseforge.com/minecraft/mc-mods/neat",
+	"issues": "https://github.com/Vazkii/Neat/issues"
+  },
+  "depends": {
+	"fabric-resource-loader-v0": "*"
+  },
+  "authors": [
+	"Vazkii"
+  ],
+  "description": "Minimalistic Functional Unit Plates for the modern Minecrafter",
+  "mixins": [
+	"mixins.neat.json"
+  ],
+  "custom": {
+	"modmenu:clientsideOnly": true
+  }
+}
