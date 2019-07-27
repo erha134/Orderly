@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "vazkii.neat.mixin",
+  "package": "io.github.prospector.rocks.mixin",
   "compatibilityLevel": "JAVA_8",
   "client": [
     "MixinHealthBarRender"

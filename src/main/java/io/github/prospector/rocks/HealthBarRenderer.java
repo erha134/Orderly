@@ -1,6 +1,7 @@
-package vazkii.neat;
+package io.github.prospector.rocks;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import io.github.prospector.rocks.config.RocksConfigManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.FrustumWithOrigin;
@@ -40,7 +41,7 @@ public class HealthBarRenderer {
     public static void render(float partialTicks) {
         MinecraftClient mc = MinecraftClient.getInstance();
 
-        if ((!NeatConfig.renderInF1 && !MinecraftClient.isHudEnabled()) || !NeatConfig.draw) {
+        if ((!RocksConfigManager.getConfig().canRenderInF1() && !MinecraftClient.isHudEnabled()) || !RocksConfigManager.getConfig().canDraw()) {
             return;
         }
 
@@ -53,7 +54,7 @@ public class HealthBarRenderer {
         double viewZ = cameraEntity.prevZ + (cameraEntity.z - cameraEntity.prevZ) * partialTicks;
         frustum.setOrigin(viewX, viewY, viewZ);
 
-        if (NeatConfig.showOnlyFocused) {
+        if (RocksConfigManager.getConfig().showingOnlyFocused()) {
             Entity focused = getEntityLookedAt(mc.player);
             if (focused instanceof LivingEntity && focused.isAlive()) {
                 renderHealthBar((LivingEntity) focused, partialTicks, cameraEntity);
@@ -87,20 +88,20 @@ public class HealthBarRenderer {
             boolean boss = !entity.canUsePortals();
 
             String entityID = entity.getEntityName();
-            if (NeatConfig.blacklist.contains(entityID)) {
+            if (RocksConfigManager.getConfig().getBlacklist().contains(entityID)) {
                 continue;
             }
 
             processing:
             {
                 float distance = passedEntity.distanceTo(viewPoint);
-                if (distance > NeatConfig.maxDistance || !passedEntity.canSee(viewPoint) || entity.isInvisible()) {
+                if (distance > RocksConfigManager.getConfig().getMaxDistance() || !passedEntity.canSee(viewPoint) || entity.isInvisible()) {
                     break processing;
                 }
-                if (!NeatConfig.showOnBosses && !boss) {
+                if (!RocksConfigManager.getConfig().canShowOnBosses() && !boss) {
                     break processing;
                 }
-                if (!NeatConfig.showOnPlayers && entity instanceof PlayerEntity) {
+                if (!RocksConfigManager.getConfig().canShowOnPlayers() && entity instanceof PlayerEntity) {
                     break processing;
                 }
 
@@ -120,7 +121,7 @@ public class HealthBarRenderer {
                 EntityRenderDispatcher renderManager = MinecraftClient.getInstance().getEntityRenderManager();
 
                 GlStateManager.pushMatrix();
-                GlStateManager.translatef((float) (x - renderManager.camera.getPos().x), (float) (y - renderManager.camera.getPos().y + passedEntity.getHeight() + NeatConfig.heightAbove), (float) (z - renderManager.camera.getPos().z));
+                GlStateManager.translatef((float) (x - renderManager.camera.getPos().x), (float) (y - renderManager.camera.getPos().y + passedEntity.getHeight() + RocksConfigManager.getConfig().getHeightAbove()), (float) (z - renderManager.camera.getPos().z));
                 GL11.glNormal3f(0.0F, 1.0F, 0.0F);
                 GlStateManager.rotatef(-renderManager.cameraYaw, 0.0F, 1.0F, 0.0F);
                 GlStateManager.rotatef(renderManager.cameraPitch, 1.0F, 0.0F, 0.0F);
@@ -135,10 +136,10 @@ public class HealthBarRenderer {
                 Tessellator tessellator = Tessellator.getInstance();
                 BufferBuilder buffer = tessellator.getBufferBuilder();
 
-                float padding = NeatConfig.backgroundPadding;
-                int bgHeight = NeatConfig.backgroundHeight;
-                int barHeight = NeatConfig.barHeight;
-                float size = NeatConfig.plateSize;
+                float padding = RocksConfigManager.getConfig().getBackgroundPadding();
+                int bgHeight = RocksConfigManager.getConfig().getBackgroundHeight();
+                int barHeight = RocksConfigManager.getConfig().getBarHeight();
+                float size = RocksConfigManager.getConfig().getPlateSize();
 
                 int r = 0;
                 int g = 255;
@@ -161,7 +162,7 @@ public class HealthBarRenderer {
 
                 if (boss) {
                     stack = new ItemStack(Items.WITHER_SKELETON_SKULL);
-                    size = NeatConfig.plateSizeBoss;
+                    size = RocksConfigManager.getConfig().getPlateSizeBoss();
                     r = 128;
                     g = 0;
                     b = 128;
@@ -169,7 +170,7 @@ public class HealthBarRenderer {
 
                 int armor = entity.getArmor();
 
-                boolean useHue = !NeatConfig.colorByType;
+                boolean useHue = !RocksConfigManager.getConfig().colorByType();
                 if (useHue) {
                     float hue = Math.max(0F, (health / maxHealth) / 3F - 0.07F);
                     Color color = Color.getHSBColor(hue, 1F, 1F);
@@ -193,7 +194,7 @@ public class HealthBarRenderer {
                 float healthSize = size * (health / maxHealth);
 
                 // Background
-                if (NeatConfig.drawBackground) {
+                if (RocksConfigManager.getConfig().drawsBackground()) {
                     buffer.begin(7, VertexFormats.POSITION_COLOR);
                     buffer.vertex(-size - padding, -bgHeight, 0.0D).color(0, 0, 0, 64).next();
                     buffer.vertex(-size - padding, barHeight + padding, 0.0D).color(0, 0, 0, 64).next();
@@ -229,7 +230,7 @@ public class HealthBarRenderer {
                 float s1 = 0.75F;
                 GlStateManager.scalef(s1, s1, s1);
 
-                int h = NeatConfig.hpTextHeight;
+                int h = RocksConfigManager.getConfig().getHpTextHeight();
                 String maxHpStr = Formatting.BOLD + "" + Math.round(maxHealth * 100.0) / 100.0;
                 String hpStr = "" + Math.round(health * 100.0) / 100.0;
                 String percStr = (int) percent + "%";
@@ -241,13 +242,13 @@ public class HealthBarRenderer {
                     hpStr = hpStr.substring(0, hpStr.length() - 2);
                 }
 
-                if (NeatConfig.showCurrentHP)
+                if (RocksConfigManager.getConfig().canCurrentHP())
                     mc.textRenderer.draw(hpStr, 2, h, 0xFFFFFF);
-                if (NeatConfig.showMaxHP)
+                if (RocksConfigManager.getConfig().canShowMaxHP())
                     mc.textRenderer.draw(maxHpStr, (int) (size / (s * s1) * 2) - 2 - mc.textRenderer.getStringWidth(maxHpStr), h, 0xFFFFFF);
-                if (NeatConfig.showPercentage)
+                if (RocksConfigManager.getConfig().canShowPercentage())
                     mc.textRenderer.draw(percStr, (int) (size / (s * s1)) - mc.textRenderer.getStringWidth(percStr) / 2, h, 0xFFFFFFFF);
-                if (NeatConfig.enableDebugInfo && mc.options.debugEnabled)
+                if (RocksConfigManager.getConfig().isDebugInfoEnabled() && mc.options.debugEnabled)
                     mc.textRenderer.draw("ID: \"" + entityID + "\"", 0, h + 16, 0xFFFFFFFF);
                 GlStateManager.popMatrix();
 
@@ -258,15 +259,15 @@ public class HealthBarRenderer {
                 GlStateManager.scalef(s1, s1, s1);
                 GlStateManager.translatef(size / (s * s1) * 2 - 16, 0F, 0F);
                 mc.getTextureManager().bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX);
-                if (stack != null && NeatConfig.showAttributes) {
+                if (stack != null && RocksConfigManager.getConfig().canShowAttributes()) {
                     renderIcon(off, 0, stack, 16, 16);
                     off -= 16;
                 }
 
-                if (armor > 0 && NeatConfig.showArmor) {
+                if (armor > 0 && RocksConfigManager.getConfig().canShowArmor()) {
                     int ironArmor = armor % 5;
                     int diamondArmor = armor / 5;
-                    if (!NeatConfig.groupArmor) {
+                    if (!RocksConfigManager.getConfig().canShowGroupArmor()) {
                         ironArmor = armor;
                         diamondArmor = 0;
                     }

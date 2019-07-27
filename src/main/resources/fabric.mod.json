@@ -1,31 +1,29 @@
 {
   "schemaVersion": 1,
-  "id": "neat",
-  "name": "Neat",
+  "id": "rocks",
+  "name": "Rocks",
   "version": "$version",
   "environment": "client",
   "license": "CC BY-NC-SA 3.0",
-  "icon": "assets/neat/icon.png",
+  "icon": "assets/rocks/icon.png",
   "entrypoints": {
-	"client": [
-	  "vazkii.neat.Neat"
-	]
+    "client": [
+      "io.github.prospector.rocks.Rocks"
+    ]
   },
   "contact": {
-	"homepage": "https://www.curseforge.com/minecraft/mc-mods/neat",
-	"issues": "https://github.com/Vazkii/Neat/issues"
-  },
-  "depends": {
-	"fabric-resource-loader-v0": "*"
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/rocks",
+    "issues": "https://github.com/Prospector/Rocks/issues"
   },
   "authors": [
-	"Vazkii"
+    "Vazkii",
+    "Prospector"
   ],
-  "description": "Minimalistic Functional Unit Plates for the modern Minecrafter",
+    "description": "Minimalistic Functional Unit Plates for the modern Minecrafter. Not a mod by Vazkii.",
   "mixins": [
-	"mixins.neat.json"
+    "mixins.rocks.json"
   ],
   "custom": {
-	"modmenu:clientsideOnly": true
+    "modmenu:clientsideOnly": true
   }
 }
