@@ -1,19 +1,19 @@
 {
   "schemaVersion": 1,
-  "id": "rocks",
-  "name": "Rocks",
+  "id": "orderly",
+  "name": "Orderly",
   "version": "$version",
   "environment": "client",
   "license": "CC BY-NC-SA 3.0",
-  "icon": "assets/rocks/icon.png",
+  "icon": "assets/orderly/icon.png",
   "entrypoints": {
     "client": [
-      "io.github.prospector.rocks.Rocks"
+      "io.github.prospector.orderly.Orderly"
     ]
   },
   "contact": {
-    "homepage": "https://www.curseforge.com/minecraft/mc-mods/rocks",
-    "issues": "https://github.com/Prospector/Rocks/issues"
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/orderly",
+    "issues": "https://github.com/Prospector/Orderly/issues"
   },
   "authors": [
     "Vazkii",
@@ -21,7 +21,7 @@
   ],
     "description": "Minimalistic Functional Unit Plates for the modern Minecrafter. Not a mod by Vazkii.",
   "mixins": [
-    "mixins.rocks.json"
+    "mixins.orderly.json"
   ],
   "custom": {
     "modmenu:clientsideOnly": true

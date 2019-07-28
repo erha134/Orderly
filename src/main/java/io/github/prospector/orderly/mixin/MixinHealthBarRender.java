@@ -1,4 +1,4 @@
-package io.github.prospector.rocks.mixin;
+package io.github.prospector.orderly.mixin;
 
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.VisibleRegion;
@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import io.github.prospector.rocks.HealthBarRenderer;
+import io.github.prospector.orderly.HealthBarRenderer;
 
 @Mixin(WorldRenderer.class)
 public class MixinHealthBarRender {

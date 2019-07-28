@@ -1,10 +1,10 @@
-package io.github.prospector.rocks.config;
+package io.github.prospector.orderly.config;
 
 import com.google.common.collect.ImmutableSet;
 
 import java.util.Set;
 
-public class RocksConfig {
+public class OrderlyConfig {
 
     private boolean draw = true;
 
@@ -34,7 +34,7 @@ public class RocksConfig {
 
     public void toggleDraw() {
         draw = !draw;
-        RocksConfigManager.save();
+        OrderlyConfigManager.save();
     }
 
     public boolean canDraw() {
@@ -150,7 +150,7 @@ public class RocksConfig {
 //            v_showOnBosses = builder.define("Display on Bosses", showOnBosses);
 //            v_showOnlyFocused = builder.define("Only show the health bar for the entity looked at", showOnlyFocused);
 //            v_enableDebugInfo = builder.define("Show Debug Info with F3", enableDebugInfo);
-//            v_blacklist = builder.comment("Blacklist uses entity IDs, not their display names. Use F3 to see them in the Rocks bar.")
+//            v_blacklist = builder.comment("Blacklist uses entity IDs, not their display names. Use F3 to see them in the Orderly bar.")
 
 
 }

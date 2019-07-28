@@ -1,7 +1,7 @@
-package io.github.prospector.rocks;
+package io.github.prospector.orderly;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import io.github.prospector.rocks.config.RocksConfigManager;
+import io.github.prospector.orderly.config.OrderlyConfigManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.FrustumWithOrigin;
@@ -41,7 +41,7 @@ public class HealthBarRenderer {
     public static void render(float partialTicks) {
         MinecraftClient mc = MinecraftClient.getInstance();
 
-        if ((!RocksConfigManager.getConfig().canRenderInF1() && !MinecraftClient.isHudEnabled()) || !RocksConfigManager.getConfig().canDraw()) {
+        if ((!OrderlyConfigManager.getConfig().canRenderInF1() && !MinecraftClient.isHudEnabled()) || !OrderlyConfigManager.getConfig().canDraw()) {
             return;
         }
 
@@ -54,7 +54,7 @@ public class HealthBarRenderer {
         double viewZ = cameraEntity.prevZ + (cameraEntity.z - cameraEntity.prevZ) * partialTicks;
         frustum.setOrigin(viewX, viewY, viewZ);
 
-        if (RocksConfigManager.getConfig().showingOnlyFocused()) {
+        if (OrderlyConfigManager.getConfig().showingOnlyFocused()) {
             Entity focused = getEntityLookedAt(mc.player);
             if (focused instanceof LivingEntity && focused.isAlive()) {
                 renderHealthBar((LivingEntity) focused, partialTicks, cameraEntity);
@@ -88,20 +88,20 @@ public class HealthBarRenderer {
             boolean boss = !entity.canUsePortals();
 
             String entityID = entity.getEntityName();
-            if (RocksConfigManager.getConfig().getBlacklist().contains(entityID)) {
+            if (OrderlyConfigManager.getConfig().getBlacklist().contains(entityID)) {
                 continue;
             }
 
             processing:
             {
                 float distance = passedEntity.distanceTo(viewPoint);
-                if (distance > RocksConfigManager.getConfig().getMaxDistance() || !passedEntity.canSee(viewPoint) || entity.isInvisible()) {
+                if (distance > OrderlyConfigManager.getConfig().getMaxDistance() || !passedEntity.canSee(viewPoint) || entity.isInvisible()) {
                     break processing;
                 }
-                if (!RocksConfigManager.getConfig().canShowOnBosses() && !boss) {
+                if (!OrderlyConfigManager.getConfig().canShowOnBosses() && !boss) {
                     break processing;
                 }
-                if (!RocksConfigManager.getConfig().canShowOnPlayers() && entity instanceof PlayerEntity) {
+                if (!OrderlyConfigManager.getConfig().canShowOnPlayers() && entity instanceof PlayerEntity) {
                     break processing;
                 }
 
@@ -121,7 +121,7 @@ public class HealthBarRenderer {
                 EntityRenderDispatcher renderManager = MinecraftClient.getInstance().getEntityRenderManager();
 
                 GlStateManager.pushMatrix();
-                GlStateManager.translatef((float) (x - renderManager.camera.getPos().x), (float) (y - renderManager.camera.getPos().y + passedEntity.getHeight() + RocksConfigManager.getConfig().getHeightAbove()), (float) (z - renderManager.camera.getPos().z));
+                GlStateManager.translatef((float) (x - renderManager.camera.getPos().x), (float) (y - renderManager.camera.getPos().y + passedEntity.getHeight() + OrderlyConfigManager.getConfig().getHeightAbove()), (float) (z - renderManager.camera.getPos().z));
                 GL11.glNormal3f(0.0F, 1.0F, 0.0F);
                 GlStateManager.rotatef(-renderManager.cameraYaw, 0.0F, 1.0F, 0.0F);
                 GlStateManager.rotatef(renderManager.cameraPitch, 1.0F, 0.0F, 0.0F);
@@ -136,10 +136,10 @@ public class HealthBarRenderer {
                 Tessellator tessellator = Tessellator.getInstance();
                 BufferBuilder buffer = tessellator.getBufferBuilder();
 
-                float padding = RocksConfigManager.getConfig().getBackgroundPadding();
-                int bgHeight = RocksConfigManager.getConfig().getBackgroundHeight();
-                int barHeight = RocksConfigManager.getConfig().getBarHeight();
-                float size = RocksConfigManager.getConfig().getPlateSize();
+                float padding = OrderlyConfigManager.getConfig().getBackgroundPadding();
+                int bgHeight = OrderlyConfigManager.getConfig().getBackgroundHeight();
+                int barHeight = OrderlyConfigManager.getConfig().getBarHeight();
+                float size = OrderlyConfigManager.getConfig().getPlateSize();
 
                 int r = 0;
                 int g = 255;
@@ -162,7 +162,7 @@ public class HealthBarRenderer {
 
                 if (boss) {
                     stack = new ItemStack(Items.WITHER_SKELETON_SKULL);
-                    size = RocksConfigManager.getConfig().getPlateSizeBoss();
+                    size = OrderlyConfigManager.getConfig().getPlateSizeBoss();
                     r = 128;
                     g = 0;
                     b = 128;
@@ -170,7 +170,7 @@ public class HealthBarRenderer {
 
                 int armor = entity.getArmor();
 
-                boolean useHue = !RocksConfigManager.getConfig().colorByType();
+                boolean useHue = !OrderlyConfigManager.getConfig().colorByType();
                 if (useHue) {
                     float hue = Math.max(0F, (health / maxHealth) / 3F - 0.07F);
                     Color color = Color.getHSBColor(hue, 1F, 1F);
@@ -194,7 +194,7 @@ public class HealthBarRenderer {
                 float healthSize = size * (health / maxHealth);
 
                 // Background
-                if (RocksConfigManager.getConfig().drawsBackground()) {
+                if (OrderlyConfigManager.getConfig().drawsBackground()) {
                     buffer.begin(7, VertexFormats.POSITION_COLOR);
                     buffer.vertex(-size - padding, -bgHeight, 0.0D).color(0, 0, 0, 64).next();
                     buffer.vertex(-size - padding, barHeight + padding, 0.0D).color(0, 0, 0, 64).next();
@@ -230,7 +230,7 @@ public class HealthBarRenderer {
                 float s1 = 0.75F;
                 GlStateManager.scalef(s1, s1, s1);
 
-                int h = RocksConfigManager.getConfig().getHpTextHeight();
+                int h = OrderlyConfigManager.getConfig().getHpTextHeight();
                 String maxHpStr = Formatting.BOLD + "" + Math.round(maxHealth * 100.0) / 100.0;
                 String hpStr = "" + Math.round(health * 100.0) / 100.0;
                 String percStr = (int) percent + "%";
@@ -242,13 +242,13 @@ public class HealthBarRenderer {
                     hpStr = hpStr.substring(0, hpStr.length() - 2);
                 }
 
-                if (RocksConfigManager.getConfig().canCurrentHP())
+                if (OrderlyConfigManager.getConfig().canCurrentHP())
                     mc.textRenderer.draw(hpStr, 2, h, 0xFFFFFF);
-                if (RocksConfigManager.getConfig().canShowMaxHP())
+                if (OrderlyConfigManager.getConfig().canShowMaxHP())
                     mc.textRenderer.draw(maxHpStr, (int) (size / (s * s1) * 2) - 2 - mc.textRenderer.getStringWidth(maxHpStr), h, 0xFFFFFF);
-                if (RocksConfigManager.getConfig().canShowPercentage())
+                if (OrderlyConfigManager.getConfig().canShowPercentage())
                     mc.textRenderer.draw(percStr, (int) (size / (s * s1)) - mc.textRenderer.getStringWidth(percStr) / 2, h, 0xFFFFFFFF);
-                if (RocksConfigManager.getConfig().isDebugInfoEnabled() && mc.options.debugEnabled)
+                if (OrderlyConfigManager.getConfig().isDebugInfoEnabled() && mc.options.debugEnabled)
                     mc.textRenderer.draw("ID: \"" + entityID + "\"", 0, h + 16, 0xFFFFFFFF);
                 GlStateManager.popMatrix();
 
@@ -259,15 +259,15 @@ public class HealthBarRenderer {
                 GlStateManager.scalef(s1, s1, s1);
                 GlStateManager.translatef(size / (s * s1) * 2 - 16, 0F, 0F);
                 mc.getTextureManager().bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX);
-                if (stack != null && RocksConfigManager.getConfig().canShowAttributes()) {
+                if (stack != null && OrderlyConfigManager.getConfig().canShowAttributes()) {
                     renderIcon(off, 0, stack, 16, 16);
                     off -= 16;
                 }
 
-                if (armor > 0 && RocksConfigManager.getConfig().canShowArmor()) {
+                if (armor > 0 && OrderlyConfigManager.getConfig().canShowArmor()) {
                     int ironArmor = armor % 5;
                     int diamondArmor = armor / 5;
-                    if (!RocksConfigManager.getConfig().canShowGroupArmor()) {
+                    if (!OrderlyConfigManager.getConfig().canShowGroupArmor()) {
                         ironArmor = armor;
                         diamondArmor = 0;
                     }

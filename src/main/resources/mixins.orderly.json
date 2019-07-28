@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "io.github.prospector.rocks.mixin",
+  "package": "io.github.prospector.orderly.mixin",
   "compatibilityLevel": "JAVA_8",
   "client": [
     "MixinHealthBarRender"
