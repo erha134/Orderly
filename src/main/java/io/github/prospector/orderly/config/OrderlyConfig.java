@@ -6,128 +6,128 @@ import java.util.Set;
 
 public class OrderlyConfig {
 
-    private boolean draw = true;
+	private boolean draw = true;
 
-    private int maxDistance = 24;
-    private boolean renderInF1 = false;
-    private double heightAbove = 0.6;
-    private boolean drawBackground = true;
-    private int backgroundPadding = 2;
-    private int backgroundHeight = 6;
-    private int barHeight = 4;
-    private int plateSize = 25;
-    private int plateSizeBoss = 50;
-    private boolean showAttributes = true;
-    private boolean showArmor = true;
-    private boolean groupArmor = true;
-    private boolean colorByType = false;
-    private int hpTextHeight = 14;
-    private boolean showMaxHP = true;
-    private boolean showCurrentHP = true;
-    private boolean showPercentage = true;
-    private boolean showOnPlayers = true;
-    private boolean showOnBosses = true;
-    private boolean showOnlyFocused = false;
-    private boolean enableDebugInfo = true;
-    private final Set<String> blacklist = ImmutableSet.of("minecraft:shulker", "minecraft:armor_stand", "minecraft:cod", "minecraft:salmon", "minecraft:pufferfish", "minecraft:tropical_fish");
+	private int maxDistance = 24;
+	private boolean renderInF1 = false;
+	private double heightAbove = 0.6;
+	private boolean drawBackground = true;
+	private int backgroundPadding = 2;
+	private int backgroundHeight = 6;
+	private int barHeight = 4;
+	private int plateSize = 25;
+	private int plateSizeBoss = 50;
+	private boolean showAttributes = true;
+	private boolean showArmor = true;
+	private boolean groupArmor = true;
+	private boolean colorByType = false;
+	private int hpTextHeight = 14;
+	private boolean showMaxHP = true;
+	private boolean showCurrentHP = true;
+	private boolean showPercentage = true;
+	private boolean showOnPlayers = true;
+	private boolean showOnBosses = true;
+	private boolean showOnlyFocused = false;
+	private boolean enableDebugInfo = true;
+	private final Set<String> blacklist = ImmutableSet.of("minecraft:shulker", "minecraft:armor_stand", "minecraft:cod", "minecraft:salmon", "minecraft:pufferfish", "minecraft:tropical_fish", "illuminations:firefly");
 
 
-    public void toggleDraw() {
-        draw = !draw;
-        OrderlyConfigManager.save();
-    }
+	public void toggleDraw() {
+		draw = !draw;
+		OrderlyConfigManager.save();
+	}
 
-    public boolean canDraw() {
-        return draw;
-    }
+	public boolean canDraw() {
+		return draw;
+	}
 
-    public int getMaxDistance() {
-        return maxDistance;
-    }
+	public int getMaxDistance() {
+		return maxDistance;
+	}
 
-    public boolean canRenderInF1() {
-        return renderInF1;
-    }
+	public boolean canRenderInF1() {
+		return renderInF1;
+	}
 
-    public double getHeightAbove() {
-        return heightAbove;
-    }
+	public double getHeightAbove() {
+		return heightAbove;
+	}
 
-    public boolean drawsBackground() {
-        return drawBackground;
-    }
+	public boolean drawsBackground() {
+		return drawBackground;
+	}
 
-    public int getBackgroundPadding() {
-        return backgroundPadding;
-    }
+	public int getBackgroundPadding() {
+		return backgroundPadding;
+	}
 
-    public int getBackgroundHeight() {
-        return backgroundHeight;
-    }
+	public int getBackgroundHeight() {
+		return backgroundHeight;
+	}
 
-    public int getBarHeight() {
-        return barHeight;
-    }
+	public int getBarHeight() {
+		return barHeight;
+	}
 
-    public int getPlateSize() {
-        return plateSize;
-    }
+	public int getPlateSize() {
+		return plateSize;
+	}
 
-    public int getPlateSizeBoss() {
-        return plateSizeBoss;
-    }
+	public int getPlateSizeBoss() {
+		return plateSizeBoss;
+	}
 
-    public boolean canShowAttributes() {
-        return showAttributes;
-    }
+	public boolean canShowAttributes() {
+		return showAttributes;
+	}
 
-    public boolean canShowArmor() {
-        return showArmor;
-    }
+	public boolean canShowArmor() {
+		return showArmor;
+	}
 
-    public boolean canShowGroupArmor() {
-        return groupArmor;
-    }
+	public boolean canShowGroupArmor() {
+		return groupArmor;
+	}
 
-    public boolean colorByType() {
-        return colorByType;
-    }
+	public boolean colorByType() {
+		return colorByType;
+	}
 
-    public int getHpTextHeight() {
-        return hpTextHeight;
-    }
+	public int getHpTextHeight() {
+		return hpTextHeight;
+	}
 
-    public boolean canShowMaxHP() {
-        return showMaxHP;
-    }
+	public boolean canShowMaxHP() {
+		return showMaxHP;
+	}
 
-    public boolean canCurrentHP() {
-        return showCurrentHP;
-    }
+	public boolean canCurrentHP() {
+		return showCurrentHP;
+	}
 
-    public boolean canShowPercentage() {
-        return showPercentage;
-    }
+	public boolean canShowPercentage() {
+		return showPercentage;
+	}
 
-    public boolean canShowOnPlayers() {
-        return showOnPlayers;
-    }
+	public boolean canShowOnPlayers() {
+		return showOnPlayers;
+	}
 
-    public boolean canShowOnBosses() {
-        return showOnBosses;
-    }
+	public boolean canShowOnBosses() {
+		return showOnBosses;
+	}
 
-    public boolean showingOnlyFocused() {
-        return showOnlyFocused;
-    }
+	public boolean showingOnlyFocused() {
+		return showOnlyFocused;
+	}
 
-    public boolean isDebugInfoEnabled() {
-        return enableDebugInfo;
-    }
+	public boolean isDebugInfoEnabled() {
+		return enableDebugInfo;
+	}
 
-    public Set<String> getBlacklist() {
-        return blacklist;
-    }
+	public Set<String> getBlacklist() {
+		return blacklist;
+	}
 
 //            v_maxDistance = builder.define("Max Distance", maxDistance);
 //            v_renderInF1 = builder.define("Render with Interface Disabled (F1)", renderInF1);
