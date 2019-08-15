@@ -306,10 +306,10 @@ public class HealthBarRenderer {
 			Tessellator tessellator = Tessellator.getInstance();
 			BufferBuilder buffer = tessellator.getBufferBuilder();
 			buffer.begin(7, VertexFormats.POSITION_UV);
-			buffer.vertex((double) (vertexX), (double) (vertexY + intV), 0.0D).texture((double) textureAtlasSprite.getMinU(), (double) textureAtlasSprite.getMaxV()).next();
-			buffer.vertex((double) (vertexX + intU), (double) (vertexY + intV), 0.0D).texture((double) textureAtlasSprite.getMaxU(), (double) textureAtlasSprite.getMaxV()).next();
-			buffer.vertex((double) (vertexX + intU), (double) (vertexY), 0.0D).texture((double) textureAtlasSprite.getMaxU(), (double) textureAtlasSprite.getMinV()).next();
-			buffer.vertex((double) (vertexX), (double) (vertexY), 0.0D).texture((double) textureAtlasSprite.getMinU(), (double) textureAtlasSprite.getMinV()).next();
+			buffer.vertex(vertexX, vertexY + intV, 0.0D).texture(textureAtlasSprite.getMinU(), textureAtlasSprite.getMaxV()).next();
+			buffer.vertex(vertexX + intU, vertexY + intV, 0.0D).texture(textureAtlasSprite.getMaxU(), textureAtlasSprite.getMaxV()).next();
+			buffer.vertex(vertexX + intU, vertexY, 0.0D).texture(textureAtlasSprite.getMaxU(), textureAtlasSprite.getMinV()).next();
+			buffer.vertex(vertexX, vertexY, 0.0D).texture(textureAtlasSprite.getMinU(), textureAtlasSprite.getMinV()).next();
 			tessellator.draw();
 		} catch (Exception e) {
 		}
