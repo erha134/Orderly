@@ -23,6 +23,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.RayTraceContext;
@@ -100,19 +101,19 @@ public class HealthBarRenderer {
 				if (!OrderlyConfigManager.getConfig().canShowOnPlayers() && entity instanceof PlayerEntity) {
 					break processing;
 				}
+                float maxHealth = entity.getHealthMaximum();
+                if (maxHealth <= 0.0F) {
+                    break processing;
+                }
 
 				double x = passedEntity.prevX + (passedEntity.x - passedEntity.prevX) * partialTicks;
 				double y = passedEntity.prevY + (passedEntity.y - passedEntity.prevY) * partialTicks;
 				double z = passedEntity.prevZ + (passedEntity.z - passedEntity.prevZ) * partialTicks;
 
 				float scale = 0.026666672F;
-				float maxHealth = entity.getHealthMaximum();
-				float health = Math.min(maxHealth, entity.getHealth());
+                float health = MathHelper.clamp(entity.getHealth(), 0.0F, maxHealth);
 
-				if (maxHealth <= 0)
-					break processing;
-
-				float percent = (int) ((health / maxHealth) * 100F);
+				float percent = (health / maxHealth) * 100F;
 
 				EntityRenderDispatcher renderManager = MinecraftClient.getInstance().getEntityRenderManager();
 
@@ -223,9 +224,10 @@ public class HealthBarRenderer {
 				GlStateManager.scalef(s1, s1, s1);
 
 				int h = OrderlyConfigManager.getConfig().getHpTextHeight();
-				String maxHpStr = Formatting.BOLD + "" + Math.round(maxHealth * 100.0) / 100.0;
-				String hpStr = "" + Math.round(health * 100.0) / 100.0;
-				String percStr = (int) percent + "%";
+				;
+				String maxHpStr = String.format("%s%.2f", Formatting.BOLD, maxHealth);
+				String hpStr = String.format("%.2f", health);
+				String percStr = String.format("%.2f%%", percent);
 
 				if (maxHpStr.endsWith(".0")) {
 					maxHpStr = maxHpStr.substring(0, maxHpStr.length() - 2);
