@@ -9,7 +9,6 @@ import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.world.ClientWorld;
@@ -184,11 +183,7 @@ public class HealthBarRenderer {
 				GlStateManager.translatef(0F, pastTranslate, 0F);
 
 				float s = 0.5F;
-				String name = I18n.translate(entity.getDisplayName().asFormattedString());
-				if (entity.hasCustomName()) {
-					name = Formatting.ITALIC + entity.getCustomName().toString();
-				}
-
+                String name = (entity.hasCustomName() ? entity.getCustomName().formatted(Formatting.ITALIC) : entity.getDisplayName()).asFormattedString();
 				float namel = mc.textRenderer.getStringWidth(name) * s;
 				if (namel + 20 > size * 2) {
 					size = namel / 2F + 10F;
@@ -249,7 +244,7 @@ public class HealthBarRenderer {
 				if (OrderlyConfigManager.getConfig().canShowMaxHP())
 					mc.textRenderer.draw(maxHpStr, (int) (size / (s * s1) * 2) - 2 - mc.textRenderer.getStringWidth(maxHpStr), h, 0xFFFFFF);
 				if (OrderlyConfigManager.getConfig().canShowPercentage())
-					mc.textRenderer.draw(percStr, (int) (size / (s * s1)) - mc.textRenderer.getStringWidth(percStr) / 2, h, 0xFFFFFFFF);
+					mc.textRenderer.draw(percStr, (int) (size / (s * s1)) - mc.textRenderer.getStringWidth(percStr) / 2.0F, h, 0xFFFFFFFF);
 				if (OrderlyConfigManager.getConfig().isDebugInfoEnabled() && mc.options.debugEnabled)
 					mc.textRenderer.draw("ID: \"" + entityID + "\"", 0, h + 16, 0xFFFFFFFF);
 				GlStateManager.popMatrix();
