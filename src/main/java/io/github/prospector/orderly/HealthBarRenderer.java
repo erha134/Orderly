@@ -338,7 +338,7 @@ public class HealthBarRenderer {
 
 		for (Entity entity : entitiesInBoundingBox) {
 			if (entity.collides()) {
-				Box collisionBox = entity.getCollisionBox();
+				Box collisionBox = entity.getVisibilityBoundingBox();
 				Optional<Vec3d> interceptPosition = collisionBox.rayTrace(positionVector, reachVector);
 
 				if (collisionBox.contains(positionVector)) {
