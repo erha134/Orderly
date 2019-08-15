@@ -1,9 +1,17 @@
 package io.github.prospector.orderly.config;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import io.github.prospector.orderly.Orderly;
+import me.shedaniel.clothconfig2.api.ConfigBuilder;
+import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.util.Identifier;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
+@SuppressWarnings("FieldCanBeLocal")
 public class OrderlyConfig {
 
 	private boolean draw = true;
@@ -29,12 +37,42 @@ public class OrderlyConfig {
 	private boolean showOnBosses = true;
 	private boolean showOnlyFocused = false;
 	private boolean enableDebugInfo = true;
-	private final Set<String> blacklist = ImmutableSet.of("minecraft:shulker", "minecraft:armor_stand", "minecraft:cod", "minecraft:salmon", "minecraft:pufferfish", "minecraft:tropical_fish", "illuminations:firefly");
+	private static final transient String[] blacklistDefaults = new String[]{"minecraft:shulker", "minecraft:armor_stand", "minecraft:cod", "minecraft:salmon", "minecraft:pufferfish", "minecraft:tropical_fish", "illuminations:firefly"};
+	private Set<String> blacklist = Sets.newHashSet(blacklistDefaults);
 
+    static Screen createConfigScreen(Screen parent) {
+        ConfigBuilder builder = ConfigBuilder.create().setParentScreen(parent).setTitle(String.format("config.%s.title", Orderly.MOD_ID));
+        OrderlyConfig config = OrderlyConfigManager.getConfig();
+        builder.getOrCreateCategory("general")
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("draw", config.canDraw()).setDefaultValue(true).setSaveConsumer(b -> config.draw = b).build())
+                .addEntry(ConfigEntryBuilder.create().startIntField("maxDistance", config.getMaxDistance()).setDefaultValue(24).setSaveConsumer(i -> config.maxDistance = i).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("renderInF1", config.canRenderInF1()).setDefaultValue(false).setSaveConsumer(b -> config.renderInF1 = b).build())
+                .addEntry(ConfigEntryBuilder.create().startDoubleField("heightAbove", config.getHeightAbove()).setDefaultValue(0.6D).setSaveConsumer(d -> config.heightAbove = d).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("drawBackground", config.drawsBackground()).setDefaultValue(true).setSaveConsumer(b -> config.drawBackground = b).build())
+                .addEntry(ConfigEntryBuilder.create().startIntField("backgroundPadding", config.getBackgroundPadding()).setDefaultValue(2).setSaveConsumer(i -> config.backgroundPadding = i).build())
+                .addEntry(ConfigEntryBuilder.create().startIntField("backgroundHeight", config.getBackgroundHeight()).setDefaultValue(6).setSaveConsumer(i -> config.backgroundHeight = i).build())
+                .addEntry(ConfigEntryBuilder.create().startIntField("barHeight", config.getBarHeight()).setDefaultValue(4).setSaveConsumer(i -> config.barHeight = i).build())
+                .addEntry(ConfigEntryBuilder.create().startIntField("plateSize", config.getPlateSize()).setDefaultValue(25).setSaveConsumer(i -> config.plateSize = i).build())
+                .addEntry(ConfigEntryBuilder.create().startIntField("plateSizeBoss", config.getPlateSizeBoss()).setDefaultValue(50).setSaveConsumer(i -> config.plateSizeBoss = i).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showAttributes", config.canShowAttributes()).setDefaultValue(true).setSaveConsumer(b -> config.showAttributes = b).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showArmor", config.canShowArmor()).setDefaultValue(true).setSaveConsumer(b -> config.showArmor = b).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("groupArmor", config.canShowGroupArmor()).setDefaultValue(true).setSaveConsumer(b -> config.groupArmor = b).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("colorByType", config.colorByType()).setDefaultValue(false).setSaveConsumer(b -> config.colorByType = b).build())
+                .addEntry(ConfigEntryBuilder.create().startIntField("hpTextHeight", config.getHpTextHeight()).setDefaultValue(14).setSaveConsumer(i -> config.hpTextHeight = i).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showMaxHP", config.canShowMaxHP()).setDefaultValue(true).setSaveConsumer(b -> config.showMaxHP = b).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showCurrentHP", config.canCurrentHP()).setDefaultValue(true).setSaveConsumer(b -> config.showCurrentHP = b).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showPercentage", config.canShowPercentage()).setDefaultValue(true).setSaveConsumer(b -> config.showPercentage = b).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showOnPlayers", config.canShowOnPlayers()).setDefaultValue(true).setSaveConsumer(b -> config.showOnPlayers = b).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showOnBosses", config.canShowOnBosses()).setDefaultValue(true).setSaveConsumer(b -> config.showOnBosses = b).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showOnlyFocused", config.showingOnlyFocused()).setDefaultValue(false).setSaveConsumer(b -> config.showOnlyFocused = b).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("enableDebugInfo", config.isDebugInfoEnabled()).setDefaultValue(false).setSaveConsumer(b -> config.enableDebugInfo = b).build())
+                .addEntry(ConfigEntryBuilder.create().startStrList("blacklist", Lists.newArrayList(config.getBlacklist())).setDefaultValue(Lists.newArrayList(blacklistDefaults)).setExpended(true).setSaveConsumer(strings -> config.blacklist = strings.stream().filter(Identifier::isValid).map(Identifier::new).map(Identifier::toString).collect(Collectors.toSet())).build());
+        builder.setSavingRunnable(OrderlyConfigManager::save);
+        return builder.build();
+    }
 
 	public void toggleDraw() {
 		draw = !draw;
-		OrderlyConfigManager.save();
 	}
 
 	public boolean canDraw() {

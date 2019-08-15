@@ -15,8 +15,7 @@ public class Orderly implements ClientModInitializer {
 
     public static final String MOD_ID = "orderly";
     public static final Gson GSON = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).setPrettyPrinting().create();
-    public FabricKeyBinding toggleKey;
-    public boolean togglePressed;
+    private static FabricKeyBinding toggleKey;
 
     @Override
     public void onInitializeClient() {
@@ -24,10 +23,9 @@ public class Orderly implements ClientModInitializer {
         toggleKey = FabricKeyBinding.Builder.create(new Identifier(Orderly.MOD_ID, "toggle"), InputUtil.Type.KEYSYM, InputUtil.UNKNOWN_KEYCODE.getKeyCode(), "key.categories.misc").build();
         KeyBindingRegistry.INSTANCE.register(toggleKey);
         ClientTickCallback.EVENT.register(event -> {
-            boolean wasDown = togglePressed;
-            togglePressed = toggleKey.isPressed();
-            if (event.isWindowFocused() && togglePressed && !wasDown) {
+            if (event.isWindowFocused() && toggleKey.wasPressed()) {
                 OrderlyConfigManager.getConfig().toggleDraw();
+                OrderlyConfigManager.save();
             }
         });
     }

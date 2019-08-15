@@ -6,20 +6,32 @@
   "environment": "client",
   "license": "CC BY-NC-SA 3.0",
   "icon": "assets/orderly/icon.png",
+  "depends": {
+    "cloth-config2": "<=1.0.0"
+  },
   "entrypoints": {
     "client": [
       "io.github.prospector.orderly.Orderly"
+    ],
+    "modmenu": [
+      "io.github.prospector.orderly.config.OrderlyModMenuCompat"
     ]
   },
   "contact": {
     "homepage": "https://www.curseforge.com/minecraft/mc-mods/orderly",
-    "issues": "https://github.com/Prospector/Orderly/issues"
+    "issues": "https://github.com/UpcraftLP/Orderly/issues"
   },
   "authors": [
     "Vazkii",
-    "Prospector"
+    "Prospector",
+    {
+      "name": "UpcraftLP",
+      "contact": {
+        "homepage": "https://twitter.com/UpcraftLP"
+      }
+    }
   ],
-    "description": "Minimalistic Functional Unit Plates for the modern Minecrafter. Not a mod by Vazkii.",
+  "description": "Minimalistic Functional Unit Plates for the modern Minecrafter. Not a mod by Vazkii.",
   "mixins": [
     "mixins.orderly.json"
   ],
