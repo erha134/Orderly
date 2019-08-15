@@ -11,7 +11,6 @@ import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityGroup;
 import net.minecraft.entity.LivingEntity;
@@ -34,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Stack;
+import java.util.stream.StreamSupport;
 
 public class HealthBarRenderer {
 
@@ -46,7 +46,7 @@ public class HealthBarRenderer {
 			return;
 		}
 
-		Entity cameraEntity = mc.getCameraEntity();
+		final Entity cameraEntity = mc.getCameraEntity() != null ? mc.getCameraEntity() : mc.player; //possible fix for optifine (see https://github.com/UpcraftLP/Orderly/issues/3)
 		BlockPos renderingVector = cameraEntity.getBlockPos();
 		FrustumWithOrigin frustum = new FrustumWithOrigin();
 
@@ -56,17 +56,12 @@ public class HealthBarRenderer {
 		frustum.setOrigin(viewX, viewY, viewZ);
 
 		if (OrderlyConfigManager.getConfig().showingOnlyFocused()) {
-			Entity focused = getEntityLookedAt(mc.player);
+			Entity focused = getEntityLookedAt(cameraEntity);
 			if (focused instanceof LivingEntity && focused.isAlive()) {
 				renderHealthBar((LivingEntity) focused, partialTicks, cameraEntity);
 			}
 		} else {
-			ClientWorld client = mc.world;
-			client.getEntities().forEach(entity -> {
-				if (entity instanceof LivingEntity && entity != mc.player && entity.shouldRenderFrom(renderingVector.getX(), renderingVector.getY(), renderingVector.getZ()) && (entity.ignoreCameraFrustum || frustum.intersects(entity.getBoundingBox())) && entity.isAlive() && entity.getPassengersDeep().isEmpty()) {
-					renderHealthBar((LivingEntity) entity, partialTicks, cameraEntity);
-				}
-			});
+            StreamSupport.stream(mc.world.getEntities().spliterator(), false).filter(entity -> entity instanceof LivingEntity && entity != cameraEntity && entity.isAlive() && entity.getPassengersDeep().isEmpty() && entity.shouldRenderFrom(renderingVector.getX(), renderingVector.getY(), renderingVector.getZ()) && (entity.ignoreCameraFrustum || frustum.intersects(entity.getBoundingBox()))).map(LivingEntity.class::cast).forEach(entity -> renderHealthBar(entity, partialTicks, cameraEntity));
 		}
 	}
 
