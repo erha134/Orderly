@@ -1,88 +1,64 @@
 package io.github.prospector.orderly.config;
 
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import io.github.prospector.orderly.Orderly;
 import net.fabricmc.loader.api.FabricLoader;
-import org.apache.commons.io.FileUtils;
+import net.minecraft.client.MinecraftClient;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class OrderlyConfigManager {
-    private static final Executor IO_HANDLER = Executors.newSingleThreadExecutor(r -> new Thread(r, "Orderly Config IO Handler"));
 
-    private static File file;
+    private static final Executor EXECUTOR = Executors.newSingleThreadExecutor(r -> new Thread(r, "Orderly Config Manager"));
+    private static final Gson GSON = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).setPrettyPrinting().create();
     private static OrderlyConfig config;
+    private static Path configFile;
 
-    public static CompletableFuture<Void> initializeConfig() {
-        return load().thenAccept(c -> config = c);
+    public static OrderlyConfig getConfig() {
+        return config != null ? config : init();
     }
 
-    private static CompletableFuture<OrderlyConfig> load() {
-        final File file = prepareBiomeConfigFile();
-        if(!file.exists()) {
-            save();
-            return CompletableFuture.completedFuture(new OrderlyConfig());
-        }
-        return CompletableFuture.supplyAsync(() -> {
-            OrderlyConfig config;
-            try(BufferedReader br = new BufferedReader(new FileReader(file))) {
-                config = Orderly.GSON.fromJson(br, OrderlyConfig.class);
+    public static OrderlyConfig init() {
+        configFile = FabricLoader.getInstance().getConfigDirectory().toPath().resolve(Orderly.MOD_ID + ".json");
+        load().thenApplyAsync(c -> config = c, MinecraftClient.getInstance()).join();
+        return Objects.requireNonNull(config, "failed to init config");
+    }
+
+    public static CompletableFuture<OrderlyConfig> load() {
+        return save(true).thenApplyAsync(aVoid -> {
+            try(BufferedReader reader = Files.newBufferedReader(configFile)) {
+                return GSON.fromJson(reader, OrderlyConfig.class);
             }
             catch (IOException e) {
-                config = new OrderlyConfig();
-                System.err.println("Couldn't load Orderly configuration file; reverting to defaults");
-                e.printStackTrace();
-                try {
-                    FileUtils.forceDelete(file);
-                }
-                catch (IOException ex) {
-                    throw new RuntimeException("Unable to fall back to defaults", ex);
-                }
-                save();
+                Orderly.getLogger().error("unable to read config file", e);
+                return new OrderlyConfig();
             }
-            return config;
-        }, IO_HANDLER);
-    }
-
-    private static File prepareBiomeConfigFile() {
-        if(file != null) {
-            return file;
-        }
-        file = new File(FabricLoader.getInstance().getConfigDirectory(), Orderly.MOD_ID + ".json");
-        return file;
+        }, EXECUTOR);
     }
 
     public static CompletableFuture<Void> save() {
-        final File file = prepareBiomeConfigFile();
-        final OrderlyConfig configObj = config; //avoid thread desync
-        return CompletableFuture.runAsync(() -> {
-            String jsonString = Orderly.GSON.toJson(configObj);
-            try(FileWriter fileWriter = new FileWriter(file)) {
-                fileWriter.write(jsonString);
-            }
-            catch (IOException e) {
-                System.err.println("Couldn't save Orderly configuration file");
-                e.printStackTrace();
-            }
-        }, IO_HANDLER);
+        return save(true);
     }
 
-    public static OrderlyConfig getConfig() {
-        if(config == null) {
-            try {
-                return config = load().get();
+    public static CompletableFuture<Void> save(boolean overwrite) {
+        final OrderlyConfig toSave = overwrite ? new OrderlyConfig() : config;
+        return CompletableFuture.runAsync(() -> {
+            try(BufferedWriter writer = Files.newBufferedWriter(configFile)) {
+                GSON.toJson(toSave, writer);
             }
-            catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException("unable to load orderly config", e);
+            catch (IOException e) {
+                Orderly.getLogger().error("unable to write config file", e);
             }
-        }
-        return config;
+        }, EXECUTOR);
     }
 }

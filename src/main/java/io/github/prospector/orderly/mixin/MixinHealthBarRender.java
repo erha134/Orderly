@@ -12,7 +12,7 @@ import io.github.prospector.orderly.HealthBarRenderer;
 @Mixin(WorldRenderer.class)
 public class MixinHealthBarRender {
     @Inject(method = "renderEntities", at = @At("TAIL"))
-    public void render(Camera camera, VisibleRegion visibleRegion, float delta, CallbackInfo info) {
+    private void render(Camera camera, VisibleRegion visibleRegion, float delta, CallbackInfo info) {
         HealthBarRenderer.render(delta);
     }
 }
