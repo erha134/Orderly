@@ -7,8 +7,10 @@ import net.fabricmc.fabric.api.client.keybinding.KeyBindingRegistry;
 import net.fabricmc.fabric.api.event.client.ClientTickCallback;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.util.Identifier;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 
 public class Orderly implements ClientModInitializer {
 
@@ -20,6 +22,13 @@ public class Orderly implements ClientModInitializer {
         return log;
     }
 
+    static {
+        //configure debug logging if certain flags are set. this also ensures compatibility with mainline Mesh-Library debug behaviour, without directly depending on the library
+        if(Boolean.getBoolean("fabric.development") || Boolean.getBoolean("orderly.debug") || Boolean.getBoolean("mesh.debug") || Boolean.getBoolean("mesh.debug.logging")) {
+            Configurator.setLevel(MOD_ID, Level.ALL);
+        }
+    }
+
     @Override
     public void onInitializeClient() {
         OrderlyConfigManager.init();
@@ -28,7 +37,7 @@ public class Orderly implements ClientModInitializer {
         ClientTickCallback.EVENT.register(event -> {
             if (event.isWindowFocused() && toggleKey.wasPressed()) {
                 OrderlyConfigManager.getConfig().toggleDraw();
-                OrderlyConfigManager.save(true);
+                OrderlyConfigManager.save();
             }
         });
     }

@@ -14,11 +14,28 @@ import java.util.stream.Collectors;
 @SuppressWarnings("FieldCanBeLocal")
 public class OrderlyConfig {
 
+    /**
+     * whether the mod is enabled
+     */
 	private boolean draw = true;
 
 	private int maxDistance = 24;
+
+    /**
+     * whether to render health bars when the HUD is disabled by pressing F1
+     */
 	private boolean renderInF1 = false;
+
+    /**
+     * scale modifier for the health bar
+     */
+    private float healthBarScale = 1.0F;
+
 	private double heightAbove = 0.6;
+
+    /**
+     * whether to draw the background
+     */
 	private boolean drawBackground = true;
 	private int backgroundPadding = 2;
 	private int backgroundHeight = 6;
@@ -29,6 +46,10 @@ public class OrderlyConfig {
 	private boolean showArmor = true;
 	private boolean groupArmor = true;
 	private boolean colorByType = false;
+
+    /**
+     * (negative) offset for the health bar text relative to the entity name
+     */
 	private int hpTextHeight = 14;
 	private boolean showMaxHP = true;
 	private boolean showCurrentHP = true;
@@ -47,6 +68,7 @@ public class OrderlyConfig {
                 .addEntry(ConfigEntryBuilder.create().startBooleanToggle("draw", config.canDraw()).setDefaultValue(true).setSaveConsumer(b -> config.draw = b).build())
                 .addEntry(ConfigEntryBuilder.create().startIntField("maxDistance", config.getMaxDistance()).setDefaultValue(24).setSaveConsumer(i -> config.maxDistance = i).build())
                 .addEntry(ConfigEntryBuilder.create().startBooleanToggle("renderInF1", config.canRenderInF1()).setDefaultValue(false).setSaveConsumer(b -> config.renderInF1 = b).build())
+                .addEntry(ConfigEntryBuilder.create().startFloatField("healthBarScale", config.getHealthBarScale()).setDefaultValue(1.0F).setSaveConsumer(d -> config.healthBarScale = d).build())
                 .addEntry(ConfigEntryBuilder.create().startDoubleField("heightAbove", config.getHeightAbove()).setDefaultValue(0.6D).setSaveConsumer(d -> config.heightAbove = d).build())
                 .addEntry(ConfigEntryBuilder.create().startBooleanToggle("drawBackground", config.drawsBackground()).setDefaultValue(true).setSaveConsumer(b -> config.drawBackground = b).build())
                 .addEntry(ConfigEntryBuilder.create().startIntField("backgroundPadding", config.getBackgroundPadding()).setDefaultValue(2).setSaveConsumer(i -> config.backgroundPadding = i).build())
@@ -166,6 +188,10 @@ public class OrderlyConfig {
 	public Set<String> getBlacklist() {
 		return blacklist;
 	}
+
+    public float getHealthBarScale() {
+        return healthBarScale;
+    }
 
 //            v_maxDistance = builder.define("Max Distance", maxDistance);
 //            v_renderInF1 = builder.define("Render with Interface Disabled (F1)", renderInF1);

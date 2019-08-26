@@ -1,5 +1,6 @@
 package io.github.prospector.orderly;
 
+import com.google.common.base.Preconditions;
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.prospector.orderly.config.OrderlyConfig;
 import io.github.prospector.orderly.config.OrderlyConfigManager;
@@ -106,7 +107,9 @@ public class HealthBarRenderer {
     }
 
     private static void renderHealthBar(LivingEntity passedEntity, float partialTicks, Entity viewPoint) {
+        Preconditions.checkNotNull(passedEntity, "tried to render health bar for null entity");
         OrderlyConfig config = OrderlyConfigManager.getConfig();
+        MinecraftClient mc = MinecraftClient.getInstance();
         Stack<LivingEntity> passengerStack = new Stack<>();
         LivingEntity entity = passedEntity;
         passengerStack.push(entity);
@@ -114,10 +117,10 @@ public class HealthBarRenderer {
             entity = (LivingEntity) entity.getPrimaryPassenger();
             passengerStack.push(entity);
         }
-        MinecraftClient mc = MinecraftClient.getInstance();
         float pastTranslate = 0.0F;
         while(!passengerStack.isEmpty()) {
             entity = passengerStack.pop();
+            if(!entity.isAlive()) continue;
             boolean boss = !entity.canUsePortals();
             Identifier entityID = Registry.ENTITY_TYPE.getId(entity.getType());
             if(config.getBlacklist().contains(entityID.toString())) {
@@ -142,7 +145,7 @@ public class HealthBarRenderer {
                 double x = passedEntity.prevX + (passedEntity.x - passedEntity.prevX) * partialTicks;
                 double y = passedEntity.prevY + (passedEntity.y - passedEntity.prevY) * partialTicks;
                 double z = passedEntity.prevZ + (passedEntity.z - passedEntity.prevZ) * partialTicks;
-                float scale = 0.026666672F;
+                float scale = 0.026666672F * config.getHealthBarScale();
                 float health = MathHelper.clamp(entity.getHealth(), 0.0F, maxHealth);
                 float percent = (health / maxHealth) * 100.0F;
                 EntityRenderDispatcher renderManager = MinecraftClient.getInstance().getEntityRenderManager();
