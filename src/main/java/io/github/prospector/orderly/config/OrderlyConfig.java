@@ -6,8 +6,10 @@ import io.github.prospector.orderly.Orderly;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.resource.language.I18n;
 import net.minecraft.util.Identifier;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -88,7 +90,7 @@ public class OrderlyConfig {
                 .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showOnBosses", config.canShowOnBosses()).setDefaultValue(true).setSaveConsumer(b -> config.showOnBosses = b).build())
                 .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showOnlyFocused", config.showingOnlyFocused()).setDefaultValue(false).setSaveConsumer(b -> config.showOnlyFocused = b).build())
                 .addEntry(ConfigEntryBuilder.create().startBooleanToggle("enableDebugInfo", config.isDebugInfoEnabled()).setDefaultValue(false).setSaveConsumer(b -> config.enableDebugInfo = b).build())
-                .addEntry(ConfigEntryBuilder.create().startStrList("blacklist", Lists.newArrayList(config.getBlacklist())).setDefaultValue(Lists.newArrayList(blacklistDefaults)).setExpended(true).setSaveConsumer(strings -> config.blacklist = strings.stream().filter(Identifier::isValid).map(Identifier::new).map(Identifier::toString).collect(Collectors.toSet())).build());
+                .addEntry(ConfigEntryBuilder.create().startStrList("blacklist", Lists.newArrayList(config.getBlacklist())).setCellErrorSupplier(value -> Optional.ofNullable(!Identifier.isValid(value) ? I18n.translate("config.orderly.error.invalid_identifier", value) : null)).setDefaultValue(Lists.newArrayList(blacklistDefaults)).setExpended(true).setSaveConsumer(strings -> config.blacklist = strings.stream().filter(Identifier::isValid).map(Identifier::new).map(Identifier::toString).collect(Collectors.toSet())).build());
         builder.setSavingRunnable(OrderlyConfigManager::save);
         return builder.build();
     }
