@@ -1,0 +1,5 @@
+{
+    "key.orderly.toggle": "体力ゲージをトグル",
+    "config.orderly.title": "オーダリー",
+    "config.orderly.error.invalid_identifier": "%sが有効な識別子いません！"
+}
