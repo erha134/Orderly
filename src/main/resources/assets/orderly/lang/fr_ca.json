@@ -1,0 +1,5 @@
+{
+    "key.orderly.toggle": "Basculer les Barres de Santé",
+    "config.orderly.title": "Propre",
+    "config.orderly.error.invalid_identifier": "%s n'est pas un identificateur valide!"
+}
