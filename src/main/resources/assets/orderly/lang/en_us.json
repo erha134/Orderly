@@ -1,5 +1,5 @@
 {
     "key.orderly.toggle": "Toggle Health Bars",
     "config.orderly.title": "Orderly",
-    "config.orderly.error.invalid_identifier": "%s is not a valid Identifier!"
+    "config.orderly.error.invalid_identifier": "%s is not a valid identifier!"
 }
