@@ -131,9 +131,10 @@ public class HealthBarRenderer {
         while(!passengerStack.isEmpty()) {
             entity = passengerStack.pop();
             if(!entity.isAlive()) continue;
-            boolean boss = !entity.canUsePortals();
             Identifier entityID = Registry.ENTITY_TYPE.getId(entity.getType());
-            if(config.getBlacklist().contains(entityID.toString())) {
+            String idString = String.valueOf(entityID);
+            boolean boss = config.getBosses().contains(idString);
+            if(config.getBlacklist().contains(idString)) {
                 continue;
             }
             processing:
@@ -142,7 +143,7 @@ public class HealthBarRenderer {
                 if(distance > config.getMaxDistance() || !passedEntity.canSee(viewPoint) || entity.isInvisible()) {
                     break processing;
                 }
-                if(!config.canShowOnBosses() && !boss) {
+                if(!config.canShowOnBosses() && boss) {
                     break processing;
                 }
                 if(!config.canShowOnPlayers() && entity instanceof PlayerEntity) {
@@ -275,7 +276,7 @@ public class HealthBarRenderer {
                                 mc.textRenderer.draw(percStr, (int) (size / (s * s1)) - mc.textRenderer.getStringWidth(percStr) / 2.0F, h, 0xFFFFFFFF);
                             }
                             if(config.isDebugInfoEnabled() && mc.options.debugEnabled) {
-                                mc.textRenderer.draw("ID: \"" + entityID + "\"", 0, h + 16, 0xFFFFFFFF);
+                                mc.textRenderer.draw(String.format("ID: \"%s\"", idString), 0, h + 16, 0xFFFFFFFF);
                             }
                         }
                         matrices.pop();

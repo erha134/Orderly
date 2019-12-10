@@ -8,6 +8,7 @@ import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 
 import java.util.Optional;
 import java.util.Set;
@@ -61,7 +62,9 @@ public class OrderlyConfig {
 	private boolean showOnlyFocused = false;
 	private boolean enableDebugInfo = true;
 	private static final transient String[] blacklistDefaults = new String[]{"minecraft:shulker", "minecraft:armor_stand", "minecraft:cod", "minecraft:salmon", "minecraft:pufferfish", "minecraft:tropical_fish", "illuminations:firefly"};
-	private Set<String> blacklist = Sets.newHashSet(blacklistDefaults);
+    private Set<String> blacklist = Sets.newHashSet(blacklistDefaults);
+    private static final transient String[] bossDefaults = new String[]{"minecraft:ender_dragon", "minecraft:wither"};
+	private Set<String> bosses = Sets.newHashSet(bossDefaults);
 
     static Screen createConfigScreen(Screen parent) {
         ConfigBuilder builder = ConfigBuilder.create().setParentScreen(parent).setTitle(String.format("config.%s.title", Orderly.MOD_ID));
@@ -90,7 +93,8 @@ public class OrderlyConfig {
                 .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showOnBosses", config.canShowOnBosses()).setDefaultValue(true).setSaveConsumer(b -> config.showOnBosses = b).build())
                 .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showOnlyFocused", config.showingOnlyFocused()).setDefaultValue(false).setSaveConsumer(b -> config.showOnlyFocused = b).build())
                 .addEntry(ConfigEntryBuilder.create().startBooleanToggle("enableDebugInfo", config.isDebugInfoEnabled()).setDefaultValue(false).setSaveConsumer(b -> config.enableDebugInfo = b).build())
-                .addEntry(ConfigEntryBuilder.create().startStrList("blacklist", Lists.newArrayList(config.getBlacklist())).setCellErrorSupplier(value -> Optional.ofNullable(!Identifier.isValid(value) ? I18n.translate("config.orderly.error.invalid_identifier", value) : null)).setDefaultValue(Lists.newArrayList(blacklistDefaults)).setExpended(true).setSaveConsumer(strings -> config.blacklist = strings.stream().filter(Identifier::isValid).map(Identifier::new).map(Identifier::toString).collect(Collectors.toSet())).build());
+                .addEntry(ConfigEntryBuilder.create().startStrList("blacklist", Lists.newArrayList(config.getBlacklist())).setCellErrorSupplier(value -> Optional.ofNullable(!Identifier.isValid(value) ? I18n.translate("config.orderly.error.invalid_identifier", value) : null)).setDefaultValue(Lists.newArrayList(blacklistDefaults)).setExpended(true).setSaveConsumer(strings -> config.blacklist = strings.stream().filter(Identifier::isValid).map(Identifier::new).map(Identifier::toString).collect(Collectors.toSet())).build())
+                .addEntry(ConfigEntryBuilder.create().startStrList("bosses", Lists.newArrayList(config.getBosses())).setCellErrorSupplier(value -> Optional.ofNullable(!Identifier.isValid(value) ? I18n.translate("config.orderly.error.invalid_identifier", value) : null)).setDefaultValue(Lists.newArrayList(bossDefaults)).setExpended(true).setSaveConsumer(strings -> config.bosses = strings.stream().filter(Identifier::isValid).map(Identifier::new).map(Identifier::toString).collect(Collectors.toSet())).build());
         builder.setSavingRunnable(OrderlyConfigManager::save);
         return builder.build();
     }
@@ -190,6 +194,10 @@ public class OrderlyConfig {
 	public Set<String> getBlacklist() {
 		return blacklist;
 	}
+
+    public Set<String> getBosses() {
+        return bosses;
+    }
 
     public float getHealthBarScale() {
         return healthBarScale;
