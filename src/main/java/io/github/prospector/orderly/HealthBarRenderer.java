@@ -7,11 +7,13 @@ import io.github.prospector.orderly.config.OrderlyConfig;
 import io.github.prospector.orderly.config.OrderlyConfigManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.BufferRenderer;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.model.BakedModel;
@@ -143,7 +145,7 @@ public class HealthBarRenderer {
                 if(distance > config.getMaxDistance() || !passedEntity.canSee(viewPoint) || entity.isInvisible()) {
                     break processing;
                 }
-                if(!config.canShowOnBosses() && boss) {
+                if(boss && !config.canShowOnBosses()) {
                     break processing;
                 }
                 if(!config.canShowOnPlayers() && entity instanceof PlayerEntity) {
@@ -224,70 +226,80 @@ public class HealthBarRenderer {
                     }
                     float healthSize = size * (health / maxHealth);
                     // Background
+                    Matrix4f modelViewMatrix = matrices.peek().getModel();
                     if(config.drawsBackground()) {
                         buffer.begin(GL11.GL_QUADS, VertexFormats.POSITION_COLOR);
-                        buffer.vertex(-size - padding, -bgHeight, 0.0D).color(0, 0, 0, 64).next();
-                        buffer.vertex(-size - padding, barHeight + padding, 0.0D).color(0, 0, 0, 64).next();
-                        buffer.vertex(size + padding, barHeight + padding, 0.0D).color(0, 0, 0, 64).next();
-                        buffer.vertex(size + padding, -bgHeight, 0.0D).color(0, 0, 0, 64).next();
-                        tessellator.draw();
+                        buffer.vertex(modelViewMatrix, -size - padding, -bgHeight, 0.0F).color(0, 0, 0, 64).next();
+                        buffer.vertex(modelViewMatrix,-size - padding, barHeight + padding, 0.0F).color(0, 0, 0, 64).next();
+                        buffer.vertex(modelViewMatrix,size + padding, barHeight + padding, 0.0F).color(0, 0, 0, 64).next();
+                        buffer.vertex(modelViewMatrix, size + padding, -bgHeight, 0.0F).color(0, 0, 0, 64).next();
+                        buffer.end();
+                        BufferRenderer.draw(buffer);
                     }
                     // Gray Space
                     buffer.begin(GL11.GL_QUADS, VertexFormats.POSITION_COLOR);
-                    buffer.vertex(-size, 0, 0.0D).color(127, 127, 127, 127).next();
-                    buffer.vertex(-size, barHeight, 0.0D).color(127, 127, 127, 127).next();
-                    buffer.vertex(size, barHeight, 0.0D).color(127, 127, 127, 127).next();
-                    buffer.vertex(size, 0, 0.0D).color(127, 127, 127, 127).next();
-                    tessellator.draw();
+                    buffer.vertex(modelViewMatrix, -size, 0, 0.0F).color(127, 127, 127, 127).next();
+                    buffer.vertex(modelViewMatrix, -size, barHeight, 0.0F).color(127, 127, 127, 127).next();
+                    buffer.vertex(modelViewMatrix, size, barHeight, 0.0F).color(127, 127, 127, 127).next();
+                    buffer.vertex(modelViewMatrix, size, 0, 0.0F).color(127, 127, 127, 127).next();
+                    buffer.end();
+                    BufferRenderer.draw(buffer);
                     // Health Bar
                     buffer.begin(GL11.GL_QUADS, VertexFormats.POSITION_COLOR);
-                    buffer.vertex(-size, 0, 0.0D).color(r, g, b, 127).next();
-                    buffer.vertex(-size, barHeight, 0.0D).color(r, g, b, 127).next();
-                    buffer.vertex(healthSize * 2 - size, barHeight, 0.0D).color(r, g, b, 127).next();
-                    buffer.vertex(healthSize * 2 - size, 0, 0.0D).color(r, g, b, 127).next();
-                    tessellator.draw();
+                    buffer.vertex(modelViewMatrix, -size, 0, 0.0F).color(r, g, b, 127).next();
+                    buffer.vertex(modelViewMatrix, -size, barHeight, 0.0F).color(r, g, b, 127).next();
+                    buffer.vertex(modelViewMatrix, healthSize * 2 - size, barHeight, 0.0F).color(r, g, b, 127).next();
+                    buffer.vertex(modelViewMatrix, healthSize * 2 - size, 0, 0.0F).color(r, g, b, 127).next();
+                    buffer.end();
+                    BufferRenderer.draw(buffer);
                     RenderSystem.enableTexture();
                     matrices.push();
                     {
                         matrices.translate(-size, -4.5F, 0.0F);
                         matrices.scale(s, s, s);
-                        mc.textRenderer.draw(name, 0, 0, 0xFFFFFF);
+                        VertexConsumerProvider.Immediate immediate = mc.getBufferBuilders().getEntityVertexConsumers();
+                        modelViewMatrix = matrices.peek().getModel();
+                        mc.textRenderer.draw(name, 0, 0, 0xFFFFFF, false, modelViewMatrix, immediate, true, 0, 0xF000F0);
                         float s1 = 0.75F;
                         matrices.push();
                         {
                             matrices.scale(s1, s1, s1);
+                            modelViewMatrix = matrices.peek().getModel();
                             int h = config.getHpTextHeight();
-                            String maxHpStr = String.format("%s%.2f", Formatting.BOLD, maxHealth);
-                            String hpStr = String.format("%.2f", health);
-                            String percStr = String.format("%.2f%%", percent);
-                            if(maxHpStr.endsWith(".0")) {
-                                maxHpStr = maxHpStr.substring(0, maxHpStr.length() - 2);
+                            String maxHpStr = String.format("%s%.2f", Formatting.BOLD, maxHealth).replaceAll("\\.00$", "");
+                            String hpStr = String.format("%.2f", health).replaceAll("\\.00$", "");
+                            String percStr = String.format("%.2f%%", percent).replace(".00%", "%");
+                            if(maxHpStr.endsWith(".00")) {
+                                maxHpStr = maxHpStr.substring(0, maxHpStr.length() - 3);
                             }
-                            if(hpStr.endsWith(".0")) {
-                                hpStr = hpStr.substring(0, hpStr.length() - 2);
+                            if(hpStr.endsWith(".00")) {
+                                hpStr = hpStr.substring(0, hpStr.length() - 3);
                             }
+
                             if(config.canCurrentHP()) {
                                 mc.textRenderer.draw(hpStr, 2, h, 0xFFFFFF);
                             }
                             if(config.canShowMaxHP()) {
-                                mc.textRenderer.draw(maxHpStr, (int) (size / (s * s1) * 2) - 2 - mc.textRenderer.getStringWidth(maxHpStr), h, 0xFFFFFF);
+                                mc.textRenderer.draw(maxHpStr, (int) (size / (s * s1) * 2) - 2 - mc.textRenderer.getStringWidth(maxHpStr), h, 0xFFFFFF, false, modelViewMatrix, immediate, true, 0, 0xF000F0);
                             }
                             if(config.canShowPercentage()) {
-                                mc.textRenderer.draw(percStr, (int) (size / (s * s1)) - mc.textRenderer.getStringWidth(percStr) / 2.0F, h, 0xFFFFFFFF);
+                                mc.textRenderer.draw(percStr, (int) (size / (s * s1)) - mc.textRenderer.getStringWidth(percStr) / 2.0F, h, 0xFFFFFFFF, false, modelViewMatrix, immediate, true, 0, 0xF000F0);
                             }
                             if(config.isDebugInfoEnabled() && mc.options.debugEnabled) {
-                                mc.textRenderer.draw(String.format("ID: \"%s\"", idString), 0, h + 16, 0xFFFFFFFF);
+                                mc.textRenderer.draw(String.format("ID: \"%s\"", idString), 0, h + 16, 0xFFFFFFFF, false, modelViewMatrix, immediate, true, 0, 0xF000F0);
                             }
                         }
                         matrices.pop();
+                        immediate.draw();
                         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                         int off = 0;
                         s1 = 0.5F;
                         matrices.scale(s1, s1, s1);
                         matrices.translate(size / (s * s1) * 2 - 16, 0.0F, 0.0F);
                         mc.getTextureManager().bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX);
+                        modelViewMatrix = matrices.peek().getModel();
                         if(stack != null && config.canShowAttributes()) {
-                            renderIcon(off, 0, stack, 16, 16);
+                            renderIcon(off, 0, stack, 16, 16, modelViewMatrix);
                             off -= 16;
                         }
                         if(armor > 0 && config.canShowArmor()) {
@@ -299,12 +311,12 @@ public class HealthBarRenderer {
                             }
                             stack = new ItemStack(Items.IRON_CHESTPLATE);
                             for(int i = 0; i < ironArmor; i++) {
-                                renderIcon(off, 0, stack, 16, 16);
+                                renderIcon(off, 0, stack, 16, 16, modelViewMatrix);
                                 off -= 4;
                             }
                             stack = new ItemStack(Items.DIAMOND_CHESTPLATE);
                             for(int i = 0; i < diamondArmor; i++) {
-                                renderIcon(off, 0, stack, 16, 16);
+                                renderIcon(off, 0, stack, 16, 16, modelViewMatrix);
                                 off -= 4;
                             }
                         }
@@ -337,20 +349,22 @@ public class HealthBarRenderer {
         return raycast(entity, vec, look, len);
     }
 
-    private static void renderIcon(int vertexX, int vertexY, ItemStack stack, int intU, int intV) {
+    private static void renderIcon(int vertexX, int vertexY, ItemStack stack, int intU, int intV, Matrix4f modelViewMatrix) {
         try {
             MinecraftClient mc = MinecraftClient.getInstance();
             BakedModel bakedModel = mc.getItemRenderer().getModels().getModel(stack);
             Sprite textureAtlasSprite = bakedModel.getSprite();
+            RenderSystem.enableBlend();
             mc.getTextureManager().bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX);
-            Tessellator tessellator = Tessellator.getInstance();
-            BufferBuilder buffer = tessellator.getBuffer();
+            BufferBuilder buffer = Tessellator.getInstance().getBuffer();
             buffer.begin(GL11.GL_QUADS, VertexFormats.POSITION_TEXTURE);
-            buffer.vertex(vertexX, vertexY + intV, 0.0D).texture(textureAtlasSprite.getMinU(), textureAtlasSprite.getMaxV()).next();
-            buffer.vertex(vertexX + intU, vertexY + intV, 0.0D).texture(textureAtlasSprite.getMaxU(), textureAtlasSprite.getMaxV()).next();
-            buffer.vertex(vertexX + intU, vertexY, 0.0D).texture(textureAtlasSprite.getMaxU(), textureAtlasSprite.getMinV()).next();
-            buffer.vertex(vertexX, vertexY, 0.0D).texture(textureAtlasSprite.getMinU(), textureAtlasSprite.getMinV()).next();
-            tessellator.draw();
+            buffer.vertex(modelViewMatrix, vertexX, vertexY + intV, 0.0F).texture(textureAtlasSprite.getMinU(), textureAtlasSprite.getMaxV()).next();
+            buffer.vertex(modelViewMatrix, vertexX + intU, vertexY + intV, 0.0F).texture(textureAtlasSprite.getMaxU(), textureAtlasSprite.getMaxV()).next();
+            buffer.vertex(modelViewMatrix, vertexX + intU, vertexY, 0.0F).texture(textureAtlasSprite.getMaxU(), textureAtlasSprite.getMinV()).next();
+            buffer.vertex(modelViewMatrix, vertexX, vertexY, 0.0F).texture(textureAtlasSprite.getMinU(), textureAtlasSprite.getMinV()).next();
+            buffer.end();
+            BufferRenderer.draw(buffer);
+            RenderSystem.disableBlend();
         }
         catch (Exception ignore) {
             //TODO exception handling?
