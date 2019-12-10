@@ -1,13 +1,15 @@
+import org.gradle.api.JavaVersion
+
 plugins {
     id 'java'
     id 'maven-publish'
     id 'idea'
     id 'eclipse'
-    id 'fabric-loom' version '0.2.4-SNAPSHOT'
+    id 'fabric-loom' version '0.2.6-SNAPSHOT'
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 archivesBaseName = project.archive_name
 version = project.mod_version
@@ -16,9 +18,13 @@ group = project.maven_group
 def ENV = System.getenv()
 version = version + "+" + (ENV.BUILD_NUMBER ? ("build." + ENV.BUILD_NUMBER) : "custom")
 
+repositories {
+    jcenter()
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modImplementation "me.shedaniel.cloth:config-2:${project.clothconfig_version}"
@@ -54,14 +60,9 @@ jar {
 publishing {
     publications {
         mavenJava(MavenPublication) {
+            artifact(remapJar)
             artifact(sourcesJar) {
                 builtBy remapSourcesJar
-            }
-
-            afterEvaluate {
-                artifact(remapJar.output) {
-                    builtBy remapJar
-                }
             }
         }
     }
