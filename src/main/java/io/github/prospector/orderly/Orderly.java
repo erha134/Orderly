@@ -16,7 +16,7 @@ public class Orderly implements ClientModInitializer {
 
     public static final String MOD_ID = "orderly";
     private static FabricKeyBinding toggleKey;
-    private static final Logger log = LogManager.getFormatterLogger(MOD_ID);
+    private static final Logger log = LogManager.getLogger(MOD_ID);
 
     public static Logger getLogger() {
         return log;
