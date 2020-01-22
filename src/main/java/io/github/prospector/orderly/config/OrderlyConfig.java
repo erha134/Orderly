@@ -8,7 +8,6 @@ import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 
 import java.util.Optional;
 import java.util.Set;
@@ -61,7 +60,7 @@ public class OrderlyConfig {
 	private boolean showOnBosses = true;
 	private boolean showOnlyFocused = false;
 	private boolean enableDebugInfo = true;
-	private static final transient String[] blacklistDefaults = new String[]{"minecraft:shulker", "minecraft:armor_stand", "minecraft:cod", "minecraft:salmon", "minecraft:pufferfish", "minecraft:tropical_fish", "illuminations:firefly"};
+	private static final transient String[] blacklistDefaults = new String[]{"minecraft:armor_stand", "minecraft:bee", "minecraft:cod", "minecraft:pufferfish", "minecraft:salmon", "minecraft:shulker", "minecraft:tropical_fish", "illuminations:firefly"};
     private Set<String> blacklist = Sets.newHashSet(blacklistDefaults);
     private static final transient String[] bossDefaults = new String[]{"minecraft:ender_dragon", "minecraft:wither"};
 	private Set<String> bosses = Sets.newHashSet(bossDefaults);
@@ -87,7 +86,7 @@ public class OrderlyConfig {
                 .addEntry(ConfigEntryBuilder.create().startBooleanToggle("colorByType", config.colorByType()).setDefaultValue(false).setSaveConsumer(b -> config.colorByType = b).build())
                 .addEntry(ConfigEntryBuilder.create().startIntField("hpTextHeight", config.getHpTextHeight()).setDefaultValue(14).setSaveConsumer(i -> config.hpTextHeight = i).build())
                 .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showMaxHP", config.canShowMaxHP()).setDefaultValue(true).setSaveConsumer(b -> config.showMaxHP = b).build())
-                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showCurrentHP", config.canCurrentHP()).setDefaultValue(true).setSaveConsumer(b -> config.showCurrentHP = b).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showCurrentHP", config.showCurrentHP()).setDefaultValue(true).setSaveConsumer(b -> config.showCurrentHP = b).build())
                 .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showPercentage", config.canShowPercentage()).setDefaultValue(true).setSaveConsumer(b -> config.showPercentage = b).build())
                 .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showOnPlayers", config.canShowOnPlayers()).setDefaultValue(true).setSaveConsumer(b -> config.showOnPlayers = b).build())
                 .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showOnBosses", config.canShowOnBosses()).setDefaultValue(true).setSaveConsumer(b -> config.showOnBosses = b).build())
@@ -167,7 +166,7 @@ public class OrderlyConfig {
 		return showMaxHP;
 	}
 
-	public boolean canCurrentHP() {
+	public boolean showCurrentHP() {
 		return showCurrentHP;
 	}
 
