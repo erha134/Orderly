@@ -2,6 +2,7 @@ package io.github.prospector.orderly.config;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.gson.annotations.SerializedName;
 import io.github.prospector.orderly.Orderly;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
@@ -16,54 +17,50 @@ import java.util.stream.Collectors;
 @SuppressWarnings("FieldCanBeLocal")
 public class OrderlyConfig {
 
+    private static final transient String[] blacklistDefaults = new String[]{"minecraft:armor_stand", "minecraft:bee", "minecraft:cod", "minecraft:pufferfish", "minecraft:salmon", "minecraft:shulker", "minecraft:tropical_fish", "illuminations:firefly"};
+    private static final transient String[] bossDefaults = new String[]{"minecraft:ender_dragon", "minecraft:wither"};
     /**
      * whether the mod is enabled
      */
-	private boolean draw = true;
-
-	private int maxDistance = 24;
-
+    private boolean draw = true;
+    private int maxDistance = 24;
     /**
      * whether to render health bars when the HUD is disabled by pressing F1
      */
-	private boolean renderInF1 = false;
-
+    private boolean renderInF1 = false;
     /**
      * scale modifier for the health bar
      */
     private float healthBarScale = 1.0F;
-
-	private double heightAbove = 0.6;
-
+    private double heightAbove = 0.6;
     /**
      * whether to draw the background
      */
-	private boolean drawBackground = true;
-	private int backgroundPadding = 2;
-	private int backgroundHeight = 6;
-	private int barHeight = 4;
-	private int plateSize = 25;
-	private int plateSizeBoss = 50;
-	private boolean showAttributes = true;
-	private boolean showArmor = true;
-	private boolean groupArmor = true;
-	private boolean colorByType = false;
-
+    private boolean drawBackground = true;
+    private int backgroundPadding = 2;
+    private int backgroundHeight = 6;
+    private int barHeight = 4;
+    private int plateSize = 25;
+    private int plateSizeBoss = 50;
+    private boolean showAttributes = true;
+    private boolean showArmor = true;
+    private boolean groupArmor = true;
+    private boolean colorByType = false;
     /**
      * (negative) offset for the health bar text relative to the entity name
      */
-	private int hpTextHeight = 14;
-	private boolean showMaxHP = true;
-	private boolean showCurrentHP = true;
-	private boolean showPercentage = true;
-	private boolean showOnPlayers = true;
-	private boolean showOnBosses = true;
-	private boolean showOnlyFocused = false;
-	private boolean enableDebugInfo = true;
-	private static final transient String[] blacklistDefaults = new String[]{"minecraft:armor_stand", "minecraft:bee", "minecraft:cod", "minecraft:pufferfish", "minecraft:salmon", "minecraft:shulker", "minecraft:tropical_fish", "illuminations:firefly"};
+    private int hpTextHeight = 14;
+    @SerializedName("show_max_hp") //need this to not have weird names in the config
+    private boolean showMaxHP = true;
+    @SerializedName("show_current_hp") //need this to not have weird names in the config
+    private boolean showCurrentHP = true;
+    private boolean showPercentage = true;
+    private boolean showOnPlayers = true;
+    private boolean showOnBosses = true;
+    private boolean showOnlyFocused = false;
+    private boolean enableDebugInfo = true;
     private Set<String> blacklist = Sets.newHashSet(blacklistDefaults);
-    private static final transient String[] bossDefaults = new String[]{"minecraft:ender_dragon", "minecraft:wither"};
-	private Set<String> bosses = Sets.newHashSet(bossDefaults);
+    private Set<String> bosses = Sets.newHashSet(bossDefaults);
 
     static Screen createConfigScreen(Screen parent) {
         ConfigBuilder builder = ConfigBuilder.create().setParentScreen(parent).setTitle(String.format("config.%s.title", Orderly.MOD_ID));
@@ -98,110 +95,109 @@ public class OrderlyConfig {
         return builder.build();
     }
 
-	public void toggleDraw() {
-		draw = !draw;
-	}
+    public boolean canDraw() {
+        return draw;
+    }
 
-	public boolean canDraw() {
-		return draw;
-	}
+    public int getMaxDistance() {
+        return maxDistance;
+    }
 
-	public int getMaxDistance() {
-		return maxDistance;
-	}
-
-	public boolean canRenderInF1() {
-		return renderInF1;
-	}
-
-	public double getHeightAbove() {
-		return heightAbove;
-	}
-
-	public boolean drawsBackground() {
-		return drawBackground;
-	}
-
-	public int getBackgroundPadding() {
-		return backgroundPadding;
-	}
-
-	public int getBackgroundHeight() {
-		return backgroundHeight;
-	}
-
-	public int getBarHeight() {
-		return barHeight;
-	}
-
-	public int getPlateSize() {
-		return plateSize;
-	}
-
-	public int getPlateSizeBoss() {
-		return plateSizeBoss;
-	}
-
-	public boolean canShowAttributes() {
-		return showAttributes;
-	}
-
-	public boolean canShowArmor() {
-		return showArmor;
-	}
-
-	public boolean canShowGroupArmor() {
-		return groupArmor;
-	}
-
-	public boolean colorByType() {
-		return colorByType;
-	}
-
-	public int getHpTextHeight() {
-		return hpTextHeight;
-	}
-
-	public boolean canShowMaxHP() {
-		return showMaxHP;
-	}
-
-	public boolean showCurrentHP() {
-		return showCurrentHP;
-	}
-
-	public boolean canShowPercentage() {
-		return showPercentage;
-	}
-
-	public boolean canShowOnPlayers() {
-		return showOnPlayers;
-	}
-
-	public boolean canShowOnBosses() {
-		return showOnBosses;
-	}
-
-	public boolean showingOnlyFocused() {
-		return showOnlyFocused;
-	}
-
-	public boolean isDebugInfoEnabled() {
-		return enableDebugInfo;
-	}
-
-	public Set<String> getBlacklist() {
-		return blacklist;
-	}
-
-    public Set<String> getBosses() {
-        return bosses;
+    public boolean canRenderInF1() {
+        return renderInF1;
     }
 
     public float getHealthBarScale() {
         return healthBarScale;
     }
 
+    public double getHeightAbove() {
+        return heightAbove;
+    }
+
+    public boolean drawsBackground() {
+        return drawBackground;
+    }
+
+    public int getBackgroundPadding() {
+        return backgroundPadding;
+    }
+
+    public int getBackgroundHeight() {
+        return backgroundHeight;
+    }
+
+    public int getBarHeight() {
+        return barHeight;
+    }
+
+    public int getPlateSize() {
+        return plateSize;
+    }
+
+    public int getPlateSizeBoss() {
+        return plateSizeBoss;
+    }
+
+    public boolean canShowAttributes() {
+        return showAttributes;
+    }
+
+    public boolean canShowArmor() {
+        return showArmor;
+    }
+
+    public boolean canShowGroupArmor() {
+        return groupArmor;
+    }
+
+    public boolean colorByType() {
+        return colorByType;
+    }
+
+    public int getHpTextHeight() {
+        return hpTextHeight;
+    }
+
+    public boolean canShowMaxHP() {
+        return showMaxHP;
+    }
+
+    public boolean showCurrentHP() {
+        return showCurrentHP;
+    }
+
+    public boolean canShowPercentage() {
+        return showPercentage;
+    }
+
+    public boolean canShowOnPlayers() {
+        return showOnPlayers;
+    }
+
+    public boolean canShowOnBosses() {
+        return showOnBosses;
+    }
+
+    public boolean showingOnlyFocused() {
+        return showOnlyFocused;
+    }
+
+    public boolean isDebugInfoEnabled() {
+        return enableDebugInfo;
+    }
+
+    public Set<String> getBlacklist() {
+        return blacklist;
+    }
+
+    public Set<String> getBosses() {
+        return bosses;
+    }
+
+    public void toggleDraw() {
+        draw = !draw;
+    }
 //            v_maxDistance = builder.define("Max Distance", maxDistance);
 //            v_renderInF1 = builder.define("Render with Interface Disabled (F1)", renderInF1);
 //            v_heightAbove = builder.define("Height Above Mob", heightAbove);
@@ -224,6 +220,4 @@ public class OrderlyConfig {
 //            v_showOnlyFocused = builder.define("Only show the health bar for the entity looked at", showOnlyFocused);
 //            v_enableDebugInfo = builder.define("Show Debug Info with F3", enableDebugInfo);
 //            v_blacklist = builder.comment("Blacklist uses entity IDs, not their display names. Use F3 to see them in the Orderly bar.")
-
-
 }

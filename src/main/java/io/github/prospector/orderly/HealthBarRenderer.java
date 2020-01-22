@@ -276,17 +276,20 @@ public class HealthBarRenderer {
                                 hpStr = hpStr.substring(0, hpStr.length() - 3);
                             }
 
-                            if(config.canCurrentHP()) {
-                                mc.textRenderer.draw(hpStr, 2, h, 0xFFFFFF);
+                            int light = 0xF000F0;
+                            int white = 0xFFFFFF;
+                            int black = 0x000000;
+                            if(config.showCurrentHP()) {
+                                mc.textRenderer.draw(hpStr, 2, h, white, false, modelViewMatrix, immediate, true, black, light);
                             }
                             if(config.canShowMaxHP()) {
-                                mc.textRenderer.draw(maxHpStr, (int) (size / (s * s1) * 2) - 2 - mc.textRenderer.getStringWidth(maxHpStr), h, 0xFFFFFF, false, modelViewMatrix, immediate, true, 0, 0xF000F0);
+                                mc.textRenderer.draw(maxHpStr, (int) (size / (s * s1) * 2) - 2 - mc.textRenderer.getStringWidth(maxHpStr), h, white, false, modelViewMatrix, immediate, true, black, light);
                             }
                             if(config.canShowPercentage()) {
-                                mc.textRenderer.draw(percStr, (int) (size / (s * s1)) - mc.textRenderer.getStringWidth(percStr) / 2.0F, h, 0xFFFFFFFF, false, modelViewMatrix, immediate, true, 0, 0xF000F0);
+                                mc.textRenderer.draw(percStr, (int) (size / (s * s1)) - mc.textRenderer.getStringWidth(percStr) / 2.0F, h, white, false, modelViewMatrix, immediate, true, black, light);
                             }
                             if(config.isDebugInfoEnabled() && mc.options.debugEnabled) {
-                                mc.textRenderer.draw(String.format("ID: \"%s\"", idString), 0, h + 16, 0xFFFFFFFF, false, modelViewMatrix, immediate, true, 0, 0xF000F0);
+                                mc.textRenderer.draw(String.format("ID: \"%s\"", idString), 0, h + 16, white, false, modelViewMatrix, immediate, true, black, light);
                             }
                         }
                         matrices.pop();
