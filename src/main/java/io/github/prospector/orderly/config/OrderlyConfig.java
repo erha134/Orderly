@@ -58,7 +58,7 @@ public class OrderlyConfig {
     private boolean showOnPlayers = true;
     private boolean showOnBosses = true;
     private boolean showOnlyFocused = false;
-    private boolean enableDebugInfo = true;
+    private boolean enableDebugInfo = false;
     private Set<String> blacklist = Sets.newHashSet(blacklistDefaults);
     private Set<String> bosses = Sets.newHashSet(bossDefaults);
 
