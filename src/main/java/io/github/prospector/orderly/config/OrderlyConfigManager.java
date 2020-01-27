@@ -23,15 +23,15 @@ public class OrderlyConfigManager {
 
     private static final Executor EXECUTOR = Executors.newSingleThreadExecutor(r -> new Thread(r, "Orderly Config Manager"));
     private static final Gson GSON = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).setPrettyPrinting().create();
-    private static OrderlyConfig config;
+    private static OrderlyConfigImpl config;
     private static Path configFile;
 
-    public static OrderlyConfig getConfig() {
+    public static OrderlyConfigImpl getConfig() {
         return config != null ? config : init();
     }
 
-    public static OrderlyConfig init() {
-        configFile = FabricLoader.getInstance().getConfigDirectory().toPath().resolve(Orderly.MOD_ID + ".json");
+    public static OrderlyConfigImpl init() {
+        configFile = FabricLoader.getInstance().getConfigDirectory().toPath().resolve(Orderly.MODID + ".json");
         if(!Files.exists(configFile)) {
             Orderly.getLogger().info("creating orderly config file ({})", configFile::getFileName);
             save().join();
@@ -40,15 +40,15 @@ public class OrderlyConfigManager {
         return Objects.requireNonNull(config, "failed to init config");
     }
 
-    public static CompletableFuture<OrderlyConfig> load() {
+    public static CompletableFuture<OrderlyConfigImpl> load() {
         return CompletableFuture.supplyAsync(() -> {
             try(BufferedReader reader = Files.newBufferedReader(configFile)) {
-                return GSON.fromJson(reader, OrderlyConfig.class);
+                return GSON.fromJson(reader, OrderlyConfigImpl.class);
             }
             catch (IOException | JsonParseException e) {
                 Orderly.getLogger().error("unable to read config file, restoring defaults!", e);
                 save();
-                return new OrderlyConfig();
+                return new OrderlyConfigImpl();
             }
         }, EXECUTOR);
     }
@@ -57,7 +57,7 @@ public class OrderlyConfigManager {
         Orderly.getLogger().trace("saving orderly config file to {}", configFile);
         return CompletableFuture.runAsync(() -> {
             try(BufferedWriter writer = Files.newBufferedWriter(configFile)) {
-                GSON.toJson(Optional.ofNullable(config).orElseGet(OrderlyConfig::new), writer);
+                GSON.toJson(Optional.ofNullable(config).orElseGet(OrderlyConfigImpl::new), writer);
             }
             catch (IOException | JsonIOException e) {
                 Orderly.getLogger().error("unable to write config file", e);

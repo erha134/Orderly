@@ -10,11 +10,11 @@ import java.util.function.Function;
 public class OrderlyModMenuCompat implements ModMenuApi {
     @Override
     public String getModId() {
-        return Orderly.MOD_ID;
+        return Orderly.MODID;
     }
 
     @Override
     public Function<Screen, ? extends Screen> getConfigScreenFactory() {
-        return OrderlyConfig::createConfigScreen;
+        return OrderlyConfigImpl::createConfigScreen;
     }
 }

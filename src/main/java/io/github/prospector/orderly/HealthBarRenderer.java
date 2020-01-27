@@ -1,46 +1,33 @@
 package io.github.prospector.orderly;
 
 import com.google.common.base.Preconditions;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.prospector.orderly.config.OrderlyConfig;
+import io.github.prospector.orderly.util.RenderUtil;
+import io.github.prospector.orderly.api.UIManager;
+import io.github.prospector.orderly.api.UIStyle;
+import io.github.prospector.orderly.api.config.OrderlyConfig;
 import io.github.prospector.orderly.config.OrderlyConfigManager;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.BufferRenderer;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.texture.Sprite;
-import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityGroup;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.RayTraceContext;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
-import java.awt.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.Stack;
@@ -121,6 +108,8 @@ public class HealthBarRenderer {
     private static void renderHealthBar(LivingEntity passedEntity, MatrixStack matrices, float partialTicks, Camera camera, Entity viewPoint) {
         Preconditions.checkNotNull(passedEntity, "tried to render health bar for null entity");
         OrderlyConfig config = OrderlyConfigManager.getConfig();
+        UIStyle style = UIManager.getCurrentStyle();
+
         MinecraftClient mc = MinecraftClient.getInstance();
         Stack<LivingEntity> passengerStack = new Stack<>();
         LivingEntity entity = passedEntity;
@@ -129,12 +118,11 @@ public class HealthBarRenderer {
             entity = (LivingEntity) entity.getPrimaryPassenger();
             passengerStack.push(entity);
         }
-        float pastTranslate = 0.0F;
+        matrices.push();
         while(!passengerStack.isEmpty()) {
             entity = passengerStack.pop();
             if(!entity.isAlive()) continue;
-            Identifier entityID = Registry.ENTITY_TYPE.getId(entity.getType());
-            String idString = String.valueOf(entityID);
+            String idString = String.valueOf(Registry.ENTITY_TYPE.getId(entity.getType()));
             boolean boss = config.getBosses().contains(idString);
             if(config.getBlacklist().contains(idString)) {
                 continue;
@@ -151,192 +139,34 @@ public class HealthBarRenderer {
                 if(!config.canShowOnPlayers() && entity instanceof PlayerEntity) {
                     break processing;
                 }
-                float maxHealth = entity.getMaximumHealth();
-                if(maxHealth <= 0.0F) {
+                if(entity.getMaximumHealth() <= 0.0F) {
                     break processing;
                 }
                 double x = passedEntity.prevX + (passedEntity.getX() - passedEntity.prevX) * partialTicks;
                 double y = passedEntity.prevY + (passedEntity.getY() - passedEntity.prevY) * partialTicks;
                 double z = passedEntity.prevZ + (passedEntity.getZ() - passedEntity.prevZ) * partialTicks;
-                float scale = 0.026666672F * config.getHealthBarScale();
-                float health = MathHelper.clamp(entity.getHealth(), 0.0F, maxHealth);
-                float percent = (health / maxHealth) * 100.0F;
+
                 EntityRenderDispatcher renderManager = MinecraftClient.getInstance().getEntityRenderManager();
-                int bgHeight = config.getBackgroundHeight();
-                int barHeight = config.getBarHeight();
-                float padding = config.getBackgroundPadding();
                 matrices.push();
                 {
                     matrices.translate(x - renderManager.camera.getPos().x, y - renderManager.camera.getPos().y + passedEntity.getHeight() + config.getHeightAbove(), z - renderManager.camera.getPos().z);
                     GL11.glNormal3f(0.0F, 1.0F, 0.0F);
-                    Quaternion rotation = camera.getRotation().copy();
-                    rotation.scale(-1.0F);
-                    matrices.multiply(rotation);
-                    matrices.scale(-scale, -scale, scale);
-                    boolean lighting = GL11.glGetBoolean(GL11.GL_LIGHTING);
                     RenderSystem.disableLighting();
-                    RenderSystem.depthMask(false);
-                    RenderSystem.disableDepthTest();
-                    RenderSystem.disableTexture();
-                    RenderSystem.enableBlend();
-                    RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
-                    Tessellator tessellator = Tessellator.getInstance();
-                    BufferBuilder buffer = tessellator.getBuffer();
-                    float size = config.getPlateSize();
-                    int r = 0;
-                    int g = 255;
-                    int b = 0;
-                    ItemStack stack = null;
-                    if(entity instanceof MobEntity) {
-                        r = 255;
-                        g = 0;
-                        EntityGroup attr = entity.getGroup();
-                        if(attr == EntityGroup.ARTHROPOD) {
-                            stack = new ItemStack(Items.SPIDER_EYE);
-                        }
-                        else if(attr == EntityGroup.UNDEAD) {
-                            stack = new ItemStack(Items.ROTTEN_FLESH);
-                        }
-                        else {
-                            stack = new ItemStack(Items.SKELETON_SKULL, 1);
-                        }
-                    }
+                    VertexConsumerProvider.Immediate immediate = mc.getBufferBuilders().getEntityVertexConsumers();
+                    ItemStack icon = RenderUtil.getIcon(entity, boss);
+                    final int light = 0xF000F0;
                     if(boss) {
-                        stack = new ItemStack(Items.WITHER_SKELETON_SKULL);
-                        size = config.getPlateSizeBoss();
-                        r = 128;
-                        g = 0;
-                        b = 128;
+                        style.renderBossEntity(matrices, immediate, camera, config, entity, light, icon);
                     }
-                    int armor = entity.getArmor();
-                    boolean useHue = !config.colorByType();
-                    if(useHue) {
-                        float hue = Math.max(0.0F, (health / maxHealth) / 3.0F - 0.07F);
-                        Color color = Color.getHSBColor(hue, 1.0F, 1.0F);
-                        r = color.getRed();
-                        g = color.getGreen();
-                        b = color.getBlue();
+                    else {
+                        style.renderEntity(matrices, immediate, camera, config, entity, light, icon);
                     }
-                    matrices.translate(0.0F, pastTranslate, 0.0F);
-                    float s = 0.5F;
-                    String name = (entity.hasCustomName() ? entity.getCustomName().formatted(Formatting.ITALIC) : entity.getDisplayName()).asFormattedString();
-                    float namel = mc.textRenderer.getStringWidth(name) * s;
-                    if(namel + 20 > size * 2) {
-                        size = namel / 2.0F + 10.0F;
-                    }
-                    float healthSize = size * (health / maxHealth);
-                    // Background
-                    Matrix4f modelViewMatrix = matrices.peek().getModel();
-                    if(config.drawsBackground()) {
-                        buffer.begin(GL11.GL_QUADS, VertexFormats.POSITION_COLOR);
-                        buffer.vertex(modelViewMatrix, -size - padding, -bgHeight, 0.0F).color(0, 0, 0, 64).next();
-                        buffer.vertex(modelViewMatrix,-size - padding, barHeight + padding, 0.0F).color(0, 0, 0, 64).next();
-                        buffer.vertex(modelViewMatrix,size + padding, barHeight + padding, 0.0F).color(0, 0, 0, 64).next();
-                        buffer.vertex(modelViewMatrix, size + padding, -bgHeight, 0.0F).color(0, 0, 0, 64).next();
-                        buffer.end();
-                        BufferRenderer.draw(buffer);
-                    }
-                    // Gray Space
-                    buffer.begin(GL11.GL_QUADS, VertexFormats.POSITION_COLOR);
-                    buffer.vertex(modelViewMatrix, -size, 0, 0.0F).color(127, 127, 127, 127).next();
-                    buffer.vertex(modelViewMatrix, -size, barHeight, 0.0F).color(127, 127, 127, 127).next();
-                    buffer.vertex(modelViewMatrix, size, barHeight, 0.0F).color(127, 127, 127, 127).next();
-                    buffer.vertex(modelViewMatrix, size, 0, 0.0F).color(127, 127, 127, 127).next();
-                    buffer.end();
-                    BufferRenderer.draw(buffer);
-                    // Health Bar
-                    buffer.begin(GL11.GL_QUADS, VertexFormats.POSITION_COLOR);
-                    buffer.vertex(modelViewMatrix, -size, 0, 0.0F).color(r, g, b, 127).next();
-                    buffer.vertex(modelViewMatrix, -size, barHeight, 0.0F).color(r, g, b, 127).next();
-                    buffer.vertex(modelViewMatrix, healthSize * 2 - size, barHeight, 0.0F).color(r, g, b, 127).next();
-                    buffer.vertex(modelViewMatrix, healthSize * 2 - size, 0, 0.0F).color(r, g, b, 127).next();
-                    buffer.end();
-                    BufferRenderer.draw(buffer);
-                    RenderSystem.enableTexture();
-                    matrices.push();
-                    {
-                        matrices.translate(-size, -4.5F, 0.0F);
-                        matrices.scale(s, s, s);
-                        VertexConsumerProvider.Immediate immediate = mc.getBufferBuilders().getEntityVertexConsumers();
-                        modelViewMatrix = matrices.peek().getModel();
-                        mc.textRenderer.draw(name, 0, 0, 0xFFFFFF, false, modelViewMatrix, immediate, true, 0, 0xF000F0);
-                        float s1 = 0.75F;
-                        matrices.push();
-                        {
-                            matrices.scale(s1, s1, s1);
-                            modelViewMatrix = matrices.peek().getModel();
-                            int h = config.getHpTextHeight();
-                            String maxHpStr = String.format("%s%.2f", Formatting.BOLD, maxHealth).replaceAll("\\.00$", "");
-                            String hpStr = String.format("%.2f", health).replaceAll("\\.00$", "");
-                            String percStr = String.format("%.2f%%", percent).replace(".00%", "%");
-                            if(maxHpStr.endsWith(".00")) {
-                                maxHpStr = maxHpStr.substring(0, maxHpStr.length() - 3);
-                            }
-                            if(hpStr.endsWith(".00")) {
-                                hpStr = hpStr.substring(0, hpStr.length() - 3);
-                            }
-
-                            int light = 0xF000F0;
-                            int white = 0xFFFFFF;
-                            int black = 0x000000;
-                            if(config.showCurrentHP()) {
-                                mc.textRenderer.draw(hpStr, 2, h, white, false, modelViewMatrix, immediate, true, black, light);
-                            }
-                            if(config.canShowMaxHP()) {
-                                mc.textRenderer.draw(maxHpStr, (int) (size / (s * s1) * 2) - 2 - mc.textRenderer.getStringWidth(maxHpStr), h, white, false, modelViewMatrix, immediate, true, black, light);
-                            }
-                            if(config.canShowPercentage()) {
-                                mc.textRenderer.draw(percStr, (int) (size / (s * s1)) - mc.textRenderer.getStringWidth(percStr) / 2.0F, h, white, false, modelViewMatrix, immediate, true, black, light);
-                            }
-                            if(config.isDebugInfoEnabled() && mc.options.debugEnabled) {
-                                mc.textRenderer.draw(String.format("ID: \"%s\"", idString), 0, h + 16, white, false, modelViewMatrix, immediate, true, black, light);
-                            }
-                        }
-                        matrices.pop();
-                        immediate.draw();
-                        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                        int off = 0;
-                        s1 = 0.5F;
-                        matrices.scale(s1, s1, s1);
-                        matrices.translate(size / (s * s1) * 2 - 16, 0.0F, 0.0F);
-                        mc.getTextureManager().bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX);
-                        modelViewMatrix = matrices.peek().getModel();
-                        if(stack != null && config.canShowAttributes()) {
-                            renderIcon(off, 0, stack, 16, 16, modelViewMatrix);
-                            off -= 16;
-                        }
-                        if(armor > 0 && config.canShowArmor()) {
-                            int ironArmor = armor % 5;
-                            int diamondArmor = armor / 5;
-                            if(!config.canShowGroupArmor()) {
-                                ironArmor = armor;
-                                diamondArmor = 0;
-                            }
-                            stack = new ItemStack(Items.IRON_CHESTPLATE);
-                            for(int i = 0; i < ironArmor; i++) {
-                                renderIcon(off, 0, stack, 16, 16, modelViewMatrix);
-                                off -= 4;
-                            }
-                            stack = new ItemStack(Items.DIAMOND_CHESTPLATE);
-                            for(int i = 0; i < diamondArmor; i++) {
-                                renderIcon(off, 0, stack, 16, 16, modelViewMatrix);
-                                off -= 4;
-                            }
-                        }
-                    }
-                    matrices.pop();
-                    RenderSystem.disableBlend();
-                    RenderSystem.enableDepthTest();
-                    RenderSystem.depthMask(true);
-                    if(lighting) {
-                        RenderSystem.enableLighting();
-                    }
-                    RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                 }
                 matrices.pop();
-                pastTranslate -= bgHeight + barHeight + padding;
+                matrices.translate(0.0D, -(config.getBackgroundHeight() + config.getBarHeight() + config.getBackgroundPadding()), 0.0D);
             }
         }
+        matrices.pop();
     }
 
     @Nullable
@@ -350,28 +180,6 @@ public class HealthBarRenderer {
             return null;
         }
         return raycast(entity, vec, look, len);
-    }
-
-    private static void renderIcon(int vertexX, int vertexY, ItemStack stack, int intU, int intV, Matrix4f modelViewMatrix) {
-        try {
-            MinecraftClient mc = MinecraftClient.getInstance();
-            BakedModel bakedModel = mc.getItemRenderer().getModels().getModel(stack);
-            Sprite textureAtlasSprite = bakedModel.getSprite();
-            RenderSystem.enableBlend();
-            mc.getTextureManager().bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX);
-            BufferBuilder buffer = Tessellator.getInstance().getBuffer();
-            buffer.begin(GL11.GL_QUADS, VertexFormats.POSITION_TEXTURE);
-            buffer.vertex(modelViewMatrix, vertexX, vertexY + intV, 0.0F).texture(textureAtlasSprite.getMinU(), textureAtlasSprite.getMaxV()).next();
-            buffer.vertex(modelViewMatrix, vertexX + intU, vertexY + intV, 0.0F).texture(textureAtlasSprite.getMaxU(), textureAtlasSprite.getMaxV()).next();
-            buffer.vertex(modelViewMatrix, vertexX + intU, vertexY, 0.0F).texture(textureAtlasSprite.getMaxU(), textureAtlasSprite.getMinV()).next();
-            buffer.vertex(modelViewMatrix, vertexX, vertexY, 0.0F).texture(textureAtlasSprite.getMinU(), textureAtlasSprite.getMinV()).next();
-            buffer.end();
-            BufferRenderer.draw(buffer);
-            RenderSystem.disableBlend();
-        }
-        catch (Exception ignore) {
-            //TODO exception handling?
-        }
     }
 
     private static HitResult raycast(Entity entity, Vec3d origin, Vec3d ray, double len) {

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.annotations.SerializedName;
 import io.github.prospector.orderly.Orderly;
+import io.github.prospector.orderly.api.config.OrderlyConfig;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.minecraft.client.gui.screen.Screen;
@@ -15,7 +16,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("FieldCanBeLocal")
-public class OrderlyConfig {
+public class OrderlyConfigImpl implements OrderlyConfig {
 
     private static final transient String[] blacklistDefaults = new String[]{"minecraft:armor_stand", "minecraft:bee", "minecraft:cod", "minecraft:pufferfish", "minecraft:salmon", "minecraft:shulker", "minecraft:tropical_fish", "illuminations:firefly"};
     private static final transient String[] bossDefaults = new String[]{"minecraft:ender_dragon", "minecraft:wither"};
@@ -63,8 +64,8 @@ public class OrderlyConfig {
     private Set<String> bosses = Sets.newHashSet(bossDefaults);
 
     static Screen createConfigScreen(Screen parent) {
-        ConfigBuilder builder = ConfigBuilder.create().setParentScreen(parent).setTitle(String.format("config.%s.title", Orderly.MOD_ID));
-        OrderlyConfig config = OrderlyConfigManager.getConfig();
+        ConfigBuilder builder = ConfigBuilder.create().setParentScreen(parent).setTitle(String.format("config.%s.title", Orderly.MODID));
+        OrderlyConfigImpl config = OrderlyConfigManager.getConfig();
         builder.getOrCreateCategory("general")
                 .addEntry(ConfigEntryBuilder.create().startBooleanToggle("draw", config.canDraw()).setDefaultValue(true).setSaveConsumer(b -> config.draw = b).build())
                 .addEntry(ConfigEntryBuilder.create().startIntField("maxDistance", config.getMaxDistance()).setDefaultValue(24).setSaveConsumer(i -> config.maxDistance = i).build())
@@ -95,102 +96,127 @@ public class OrderlyConfig {
         return builder.build();
     }
 
+    @Override
     public boolean canDraw() {
         return draw;
     }
 
+    @Override
     public int getMaxDistance() {
         return maxDistance;
     }
 
+    @Override
     public boolean canRenderInF1() {
         return renderInF1;
     }
 
+    @Override
     public float getHealthBarScale() {
         return healthBarScale;
     }
 
+    @Override
     public double getHeightAbove() {
         return heightAbove;
     }
 
+    @Override
     public boolean drawsBackground() {
         return drawBackground;
     }
 
+    @Override
     public int getBackgroundPadding() {
         return backgroundPadding;
     }
 
+    @Override
     public int getBackgroundHeight() {
         return backgroundHeight;
     }
 
+    @Override
     public int getBarHeight() {
         return barHeight;
     }
 
+    @Override
     public int getPlateSize() {
         return plateSize;
     }
 
+    @Override
     public int getPlateSizeBoss() {
         return plateSizeBoss;
     }
 
+    @Override
     public boolean canShowAttributes() {
         return showAttributes;
     }
 
+    @Override
     public boolean canShowArmor() {
         return showArmor;
     }
 
+    @Override
     public boolean canShowGroupArmor() {
         return groupArmor;
     }
 
+    @Override
     public boolean colorByType() {
         return colorByType;
     }
 
+    @Override
     public int getHpTextHeight() {
         return hpTextHeight;
     }
 
+    @Override
     public boolean canShowMaxHP() {
         return showMaxHP;
     }
 
+    @Override
     public boolean showCurrentHP() {
         return showCurrentHP;
     }
 
+    @Override
     public boolean canShowPercentage() {
         return showPercentage;
     }
 
+    @Override
     public boolean canShowOnPlayers() {
         return showOnPlayers;
     }
 
+    @Override
     public boolean canShowOnBosses() {
         return showOnBosses;
     }
 
+    @Override
     public boolean showingOnlyFocused() {
         return showOnlyFocused;
     }
 
+    @Override
     public boolean isDebugInfoEnabled() {
         return enableDebugInfo;
     }
 
+    @Override
     public Set<String> getBlacklist() {
         return blacklist;
     }
 
+    @Override
     public Set<String> getBosses() {
         return bosses;
     }

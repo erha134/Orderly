@@ -1,6 +1,8 @@
 package io.github.prospector.orderly;
 
+import io.github.prospector.orderly.api.UIManager;
 import io.github.prospector.orderly.config.OrderlyConfigManager;
+import io.github.prospector.orderly.ui.DefaultUIStyle;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.keybinding.FabricKeyBinding;
 import net.fabricmc.fabric.api.client.keybinding.KeyBindingRegistry;
@@ -14,9 +16,9 @@ import org.apache.logging.log4j.core.config.Configurator;
 
 public class Orderly implements ClientModInitializer {
 
-    public static final String MOD_ID = "orderly";
+    public static final String MODID = "orderly";
     private static FabricKeyBinding toggleKey;
-    private static final Logger log = LogManager.getLogger(MOD_ID);
+    private static final Logger log = LogManager.getLogger(MODID);
 
     public static Logger getLogger() {
         return log;
@@ -25,14 +27,17 @@ public class Orderly implements ClientModInitializer {
     static {
         //configure debug logging if certain flags are set. this also ensures compatibility with mainline Mesh-Library debug behaviour, without directly depending on the library
         if(Boolean.getBoolean("fabric.development") || Boolean.getBoolean("orderly.debug") || Boolean.getBoolean("mesh.debug") || Boolean.getBoolean("mesh.debug.logging")) {
-            Configurator.setLevel(MOD_ID, Level.ALL);
+            Configurator.setLevel(MODID, Level.ALL);
         }
     }
 
     @Override
     public void onInitializeClient() {
+        final Identifier defaultStyle = new Identifier(MODID, "default");
+        UIManager.registerStyle(defaultStyle, DefaultUIStyle.INSTANCE);
+        UIManager.setCurrentStyle(defaultStyle);
         OrderlyConfigManager.init();
-        toggleKey = FabricKeyBinding.Builder.create(new Identifier(Orderly.MOD_ID, "toggle"), InputUtil.Type.KEYSYM, InputUtil.UNKNOWN_KEYCODE.getKeyCode(), "key.categories.misc").build();
+        toggleKey = FabricKeyBinding.Builder.create(new Identifier(Orderly.MODID, "toggle"), InputUtil.Type.KEYSYM, InputUtil.UNKNOWN_KEYCODE.getKeyCode(), "key.categories.misc").build();
         KeyBindingRegistry.INSTANCE.register(toggleKey);
         ClientTickCallback.EVENT.register(event -> {
             if (event.isWindowFocused() && toggleKey.wasPressed()) {
