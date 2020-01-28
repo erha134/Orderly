@@ -27,9 +27,13 @@ import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.registry.Registry;
 
 public class DefaultUIStyle extends SimpleUIStyle {
-    public static final UIStyle INSTANCE = new DefaultUIStyle();
+    private static final UIStyle INSTANCE = new DefaultUIStyle();
     private static final float SCALE_MULTIPLIER = 0.026666672F;
     private static final Identifier TEXTURE = new Identifier(Orderly.MODID, "textures/ui/default_health_bar.png");
+
+    public static UIStyle getInstance() {
+        return INSTANCE;
+    }
 
     @Override
     protected void render(MatrixStack matrices, VertexConsumerProvider.Immediate immediate, Camera camera, OrderlyConfig config, LivingEntity entity, int light, ItemStack icon, boolean boss) {
@@ -160,10 +164,6 @@ public class DefaultUIStyle extends SimpleUIStyle {
     }
 
     private void renderIcon(double x, double y, ItemStack stack, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int overlay, int light) {
-        //matrices.push();
-        //matrices.translate(x, y, 0.0D);
-        //MinecraftClient.getInstance().getItemRenderer().renderItem(stack, ModelTransformation.Mode.GUI, light, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers);
-        //matrices.pop();
         MinecraftClient mc = MinecraftClient.getInstance();
         matrices.push();
         matrices.translate(x, y, -0.002D);

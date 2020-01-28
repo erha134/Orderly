@@ -3,6 +3,7 @@ package io.github.prospector.orderly;
 import io.github.prospector.orderly.api.UIManager;
 import io.github.prospector.orderly.config.OrderlyConfigManager;
 import io.github.prospector.orderly.ui.DefaultUIStyle;
+import io.github.prospector.orderly.ui.SaoUIStyle;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.keybinding.FabricKeyBinding;
 import net.fabricmc.fabric.api.client.keybinding.KeyBindingRegistry;
@@ -33,8 +34,11 @@ public class Orderly implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        //TODO find a good place for registering those
         final Identifier defaultStyle = new Identifier(MODID, "default");
-        UIManager.registerStyle(defaultStyle, DefaultUIStyle.INSTANCE);
+        final Identifier saoStyle = new Identifier(MODID, "sao_like");
+        UIManager.registerStyle(defaultStyle, DefaultUIStyle::getInstance);
+        UIManager.registerStyle(saoStyle, SaoUIStyle::new);
         UIManager.setCurrentStyle(defaultStyle);
         OrderlyConfigManager.init();
         toggleKey = FabricKeyBinding.Builder.create(new Identifier(Orderly.MODID, "toggle"), InputUtil.Type.KEYSYM, InputUtil.UNKNOWN_KEYCODE.getKeyCode(), "key.categories.misc").build();
