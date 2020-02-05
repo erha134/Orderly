@@ -1,0 +1,5 @@
+{
+    "key.orderly.toggle": "Ativar ou desativar barras de vida",
+    "config.orderly.title": "Ordenado",
+    "config.orderly.error.invalid_identifier": "%s não é um identificador válido!"
+}
