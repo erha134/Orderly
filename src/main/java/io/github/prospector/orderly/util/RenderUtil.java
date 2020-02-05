@@ -2,7 +2,7 @@ package io.github.prospector.orderly.util;
 
 import net.minecraft.entity.EntityGroup;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.entity.mob.Monster;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.math.MathHelper;
@@ -11,32 +11,29 @@ import java.awt.*;
 
 public final class RenderUtil {
 
-    private RenderUtil() {
-        throw new IllegalStateException("util class");
-    }
-
     private static final ItemStack ICON_ARTHROPODS = new ItemStack(Items.SPIDER_EYE);
     private static final ItemStack ICON_UNDEAD = new ItemStack(Items.ROTTEN_FLESH);
     private static final ItemStack ICON_DEFAULT = new ItemStack(Items.SKELETON_SKULL);
     private static final ItemStack ICON_BOSSES = new ItemStack(Items.WITHER_SKELETON_SKULL);
 
+    private RenderUtil() {
+        throw new IllegalStateException("util class");
+    }
+
     public static ItemStack getIcon(LivingEntity entity, boolean boss) {
         if(boss) {
             return ICON_BOSSES;
         }
-        else if(entity instanceof MobEntity) {
-            EntityGroup attr = entity.getGroup();
-            if(attr == EntityGroup.ARTHROPOD) {
-                return ICON_ARTHROPODS;
-            }
-            else if(attr == EntityGroup.UNDEAD) {
-                return ICON_UNDEAD;
-            }
-            else {
-                return ICON_DEFAULT;
-            }
+        EntityGroup attr = entity.getGroup();
+        if(attr == EntityGroup.ARTHROPOD) {
+            return ICON_ARTHROPODS;
         }
-        return null;
+        else if(attr == EntityGroup.UNDEAD) {
+            return ICON_UNDEAD;
+        }
+        else {
+            return ICON_DEFAULT;
+        }
     }
 
     public static int getColor(LivingEntity entity, boolean colorByType, boolean boss) {
@@ -49,7 +46,7 @@ public final class RenderUtil {
                 g = 0;
                 b = 128;
             }
-            if(entity instanceof MobEntity) {
+            if(entity instanceof Monster) { //MobEntity is a red herring
                 r = 255;
                 g = 0;
                 b = 0;
