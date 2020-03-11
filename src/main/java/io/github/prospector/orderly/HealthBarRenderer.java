@@ -68,7 +68,7 @@ public class HealthBarRenderer {
         final double finalDistance = 32;
         double distance = finalDistance;
         HitResult pos = raycast(e, finalDistance);
-        Vec3d positionVector = e.getPosVector();
+        Vec3d positionVector = e.getPos();
         if(e instanceof PlayerEntity) {
             positionVector = positionVector.add(0, e.getEyeHeight(e.getPose()), 0);
         }
