@@ -14,7 +14,11 @@ version = project.mod_version
 group = project.maven_group
 
 def ENV = System.getenv()
-version = version + "+" + (ENV.BUILD_NUMBER ? ("build." + ENV.BUILD_NUMBER) : "custom") + "-1.15"
+def buildNumber = "+" + (ENV.BUILD_NUMBER ? ("build." + ENV.BUILD_NUMBER) : "custom")
+def buildMeta = (!ENV.TAG || ENV.TAG.endsWith("-beta") || ENV.TAG.endsWith("-alpha")) ? buildNumber : ""
+def modVersion = (ENV.TAG ?: version)
+version = "${modVersion}${buildMeta}-1.16"
+
 
 repositories {
     jcenter()
