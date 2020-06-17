@@ -14,7 +14,6 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
-import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.LivingEntity;
@@ -23,8 +22,10 @@ import net.minecraft.item.Items;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.text.MutableText;
 
 public class DefaultUIStyle extends SimpleUIStyle {
     private static final UIStyle INSTANCE = new DefaultUIStyle();
@@ -43,17 +44,17 @@ public class DefaultUIStyle extends SimpleUIStyle {
         matrices.multiply(rotation);
         float scale = SCALE_MULTIPLIER * config.getHealthBarScale();
         matrices.scale(-scale, -scale, scale);
-        float health = MathHelper.clamp(entity.getHealth(), 0.0F, entity.getMaximumHealth());
-        float percent = (health / entity.getMaximumHealth()) * 100.0F;
+        float health = MathHelper.clamp(entity.getHealth(), 0.0F, entity.getMaxHealth());
+        float percent = (health / entity.getMaxHealth()) * 100.0F;
         float size = boss ? config.getPlateSizeBoss() : config.getPlateSize();
         float textScale = 0.5F;
         //noinspection ConstantConditions
-        String name = (entity.hasCustomName() ? entity.getCustomName().formatted(Formatting.ITALIC) : entity.getDisplayName()).asFormattedString();
-        float namel = mc.textRenderer.getStringWidth(name) * textScale;
+        String name = (entity.hasCustomName() ? ((MutableText)entity.getCustomName()).formatted(Formatting.ITALIC) : entity.getDisplayName()).getString();
+        float namel = mc.textRenderer.getWidth(name) * textScale;
         if(namel + 20 > size * 2) {
             size = namel / 2.0F + 10.0F;
         }
-        float healthSize = size * (health / entity.getMaximumHealth());
+        float healthSize = size * (health / entity.getMaxHealth());
         MatrixStack.Entry entry = matrices.peek();
         Matrix4f modelViewMatrix = entry.getModel();
         Vector3f normal = new Vector3f(0.0F, 1.0F, 0.0F);
@@ -102,7 +103,7 @@ public class DefaultUIStyle extends SimpleUIStyle {
                 matrices.scale(s1, s1, s1);
                 modelViewMatrix = matrices.peek().getModel();
                 int h = config.getHpTextHeight();
-                String maxHpStr = String.format("%s%.2f", Formatting.BOLD, entity.getMaximumHealth()).replaceAll("\\.00$", "");
+                String maxHpStr = String.format("%s%.2f", Formatting.BOLD, entity.getMaxHealth()).replaceAll("\\.00$", "");
                 String hpStr = String.format("%.2f", health).replaceAll("\\.00$", "");
                 String percStr = String.format("%.2f%%", percent).replace(".00%", "%");
                 if(maxHpStr.endsWith(".00")) {
@@ -115,10 +116,10 @@ public class DefaultUIStyle extends SimpleUIStyle {
                     mc.textRenderer.draw(hpStr, 2, h, white, false, modelViewMatrix, immediate, false, black, light);
                 }
                 if(config.canShowMaxHP()) {
-                    mc.textRenderer.draw(maxHpStr, (int) (size / (textScale * s1) * 2) - 2 - mc.textRenderer.getStringWidth(maxHpStr), h, white, false, modelViewMatrix, immediate, false, black, light);
+                    mc.textRenderer.draw(maxHpStr, (int) (size / (textScale * s1) * 2) - 2 - mc.textRenderer.getWidth(maxHpStr), h, white, false, modelViewMatrix, immediate, false, black, light);
                 }
                 if(config.canShowPercentage()) {
-                    mc.textRenderer.draw(percStr, (int) (size / (textScale * s1)) - mc.textRenderer.getStringWidth(percStr) / 2.0F, h, white, false, modelViewMatrix, immediate, false, black, light);
+                    mc.textRenderer.draw(percStr, (int) (size / (textScale * s1)) - mc.textRenderer.getWidth(percStr) / 2.0F, h, white, false, modelViewMatrix, immediate, false, black, light);
                 }
                 if(config.isDebugInfoEnabled() && mc.options.debugEnabled) {
                     mc.textRenderer.draw(String.format("ID: \"%s\"", Registry.ENTITY_TYPE.getId(entity.getType())), 0, h + 16, white, false, modelViewMatrix, immediate, false, black, light);
