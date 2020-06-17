@@ -72,19 +72,19 @@ public class DefaultUIStyle extends SimpleUIStyle {
             buffer.vertex(modelViewMatrix, size + padding, -bgHeight, 0.0F).color(255, 255, 255, 64).texture(1.0F, 0.0F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
         }
         // Health Bar Background
-        buffer.vertex(modelViewMatrix, -size, 0, -0.001F).color(255, 255, 255, 127).texture(0.0F, 0.5F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
-        buffer.vertex(modelViewMatrix, -size, barHeight, -0.001F).color(255, 255, 255, 127).texture(0.0F, 0.75F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
-        buffer.vertex(modelViewMatrix, size, barHeight, -0.001F).color(255, 255, 255, 127).texture(1.0F, 0.75F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
-        buffer.vertex(modelViewMatrix, size, 0, -0.001F).color(255, 255, 255, 127).texture(1.0F, 0.5F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
+        buffer.vertex(modelViewMatrix, -size, 0, -0.000F).color(255, 255, 255, 127).texture(0.0F, 0.5F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
+        buffer.vertex(modelViewMatrix, -size, barHeight, -0.000F).color(255, 255, 255, 127).texture(0.0F, 0.75F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
+        buffer.vertex(modelViewMatrix, size, barHeight, -0.000F).color(255, 255, 255, 127).texture(1.0F, 0.75F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
+        buffer.vertex(modelViewMatrix, size, 0, -0.000F).color(255, 255, 255, 127).texture(1.0F, 0.5F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
         // Health Bar
         int argb = RenderUtil.getColor(entity, config.colorByType(), boss);
         int r = RenderUtil.getRed(argb);
         int g = RenderUtil.getGreen(argb);
         int b = RenderUtil.getBlue(argb);
-        buffer.vertex(modelViewMatrix, -size, 0, -0.002F).color(r, g, b, 127).texture(0.0F, 0.75F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
-        buffer.vertex(modelViewMatrix, -size, barHeight, -0.002F).color(r, g, b, 127).texture(0.0F, 1.0F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
-        buffer.vertex(modelViewMatrix, healthSize * 2 - size, barHeight, -0.002F).color(r, g, b, 127).texture(1.0F, 1.0F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
-        buffer.vertex(modelViewMatrix, healthSize * 2 - size, 0, -0.002F).color(r, g, b, 127).texture(1.0F, 0.75F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
+        buffer.vertex(modelViewMatrix, -size, 0, 0.000F).color(r, g, b, 127).texture(0.0F, 0.75F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
+        buffer.vertex(modelViewMatrix, -size, barHeight, -0.000F).color(r, g, b, 127).texture(0.0F, 1.0F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
+        buffer.vertex(modelViewMatrix, healthSize * 2 - size, barHeight, -0.000F).color(r, g, b, 127).texture(1.0F, 1.0F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
+        buffer.vertex(modelViewMatrix, healthSize * 2 - size, 0, -0.000F).color(r, g, b, 127).texture(1.0F, 0.75F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
         // Foreground
         matrices.push();
         {
