@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
     id 'idea'
     id 'eclipse'
-    id 'fabric-loom' version '0.2.6-SNAPSHOT'
+    id 'fabric-loom' version '0.4-SNAPSHOT'
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
@@ -32,6 +32,8 @@ dependencies {
     modImplementation "me.shedaniel.cloth:config-2:${project.clothconfig_version}"
     include "me.shedaniel.cloth:config-2:${project.clothconfig_version}"
     compileOnly "com.google.code.findbugs:jsr305:3.0.2"
+    modImplementation "io.github.prospector:modmenu:${project.mod_menu_version}"
+
 }
 
 processResources {

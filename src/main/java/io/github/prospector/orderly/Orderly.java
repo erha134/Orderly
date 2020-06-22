@@ -41,7 +41,7 @@ public class Orderly implements ClientModInitializer {
         UIManager.registerStyle(saoStyle, SaoUIStyle::new);
         UIManager.setCurrentStyle(defaultStyle);
         OrderlyConfigManager.init();
-        toggleKey = FabricKeyBinding.Builder.create(new Identifier(Orderly.MODID, "toggle"), InputUtil.Type.KEYSYM, InputUtil.UNKNOWN_KEYCODE.getKeyCode(), "key.categories.misc").build();
+        toggleKey = FabricKeyBinding.Builder.create(new Identifier(Orderly.MODID, "toggle"), InputUtil.Type.KEYSYM, InputUtil.UNKNOWN_KEY.getCode(), "key.categories.misc").build();
         KeyBindingRegistry.INSTANCE.register(toggleKey);
         ClientTickCallback.EVENT.register(event -> {
             if (event.isWindowFocused() && toggleKey.wasPressed()) {

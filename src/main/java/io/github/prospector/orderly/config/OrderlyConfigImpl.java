@@ -8,8 +8,9 @@ import io.github.prospector.orderly.api.config.OrderlyConfig;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.resource.language.I18n;
 import net.minecraft.util.Identifier;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.TranslatableText;
 
 import java.util.Optional;
 import java.util.Set;
@@ -64,34 +65,34 @@ public class OrderlyConfigImpl implements OrderlyConfig {
     private Set<String> bosses = Sets.newHashSet(bossDefaults);
 
     static Screen createConfigScreen(Screen parent) {
-        ConfigBuilder builder = ConfigBuilder.create().setParentScreen(parent).setTitle(String.format("config.%s.title", Orderly.MODID));
+        ConfigBuilder builder = ConfigBuilder.create().setParentScreen(parent).setTitle(new TranslatableText(String.format("config.%s.title", Orderly.MODID)));
         OrderlyConfigImpl config = OrderlyConfigManager.getConfig();
-        builder.getOrCreateCategory("general")
-                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("draw", config.canDraw()).setDefaultValue(true).setSaveConsumer(b -> config.draw = b).build())
-                .addEntry(ConfigEntryBuilder.create().startIntField("maxDistance", config.getMaxDistance()).setDefaultValue(24).setSaveConsumer(i -> config.maxDistance = i).build())
-                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("renderInF1", config.canRenderInF1()).setDefaultValue(false).setSaveConsumer(b -> config.renderInF1 = b).build())
-                .addEntry(ConfigEntryBuilder.create().startFloatField("healthBarScale", config.getHealthBarScale()).setDefaultValue(1.0F).setSaveConsumer(d -> config.healthBarScale = d).build())
-                .addEntry(ConfigEntryBuilder.create().startDoubleField("heightAbove", config.getHeightAbove()).setDefaultValue(0.6D).setSaveConsumer(d -> config.heightAbove = d).build())
-                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("drawBackground", config.drawsBackground()).setDefaultValue(true).setSaveConsumer(b -> config.drawBackground = b).build())
-                .addEntry(ConfigEntryBuilder.create().startIntField("backgroundPadding", config.getBackgroundPadding()).setDefaultValue(2).setSaveConsumer(i -> config.backgroundPadding = i).build())
-                .addEntry(ConfigEntryBuilder.create().startIntField("backgroundHeight", config.getBackgroundHeight()).setDefaultValue(6).setSaveConsumer(i -> config.backgroundHeight = i).build())
-                .addEntry(ConfigEntryBuilder.create().startIntField("barHeight", config.getBarHeight()).setDefaultValue(4).setSaveConsumer(i -> config.barHeight = i).build())
-                .addEntry(ConfigEntryBuilder.create().startIntField("plateSize", config.getPlateSize()).setDefaultValue(25).setSaveConsumer(i -> config.plateSize = i).build())
-                .addEntry(ConfigEntryBuilder.create().startIntField("plateSizeBoss", config.getPlateSizeBoss()).setDefaultValue(50).setSaveConsumer(i -> config.plateSizeBoss = i).build())
-                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showAttributes", config.canShowAttributes()).setDefaultValue(true).setSaveConsumer(b -> config.showAttributes = b).build())
-                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showArmor", config.canShowArmor()).setDefaultValue(true).setSaveConsumer(b -> config.showArmor = b).build())
-                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("groupArmor", config.canShowGroupArmor()).setDefaultValue(true).setSaveConsumer(b -> config.groupArmor = b).build())
-                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("colorByType", config.colorByType()).setDefaultValue(false).setSaveConsumer(b -> config.colorByType = b).build())
-                .addEntry(ConfigEntryBuilder.create().startIntField("hpTextHeight", config.getHpTextHeight()).setDefaultValue(14).setSaveConsumer(i -> config.hpTextHeight = i).build())
-                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showMaxHP", config.canShowMaxHP()).setDefaultValue(true).setSaveConsumer(b -> config.showMaxHP = b).build())
-                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showCurrentHP", config.showCurrentHP()).setDefaultValue(true).setSaveConsumer(b -> config.showCurrentHP = b).build())
-                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showPercentage", config.canShowPercentage()).setDefaultValue(true).setSaveConsumer(b -> config.showPercentage = b).build())
-                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showOnPlayers", config.canShowOnPlayers()).setDefaultValue(true).setSaveConsumer(b -> config.showOnPlayers = b).build())
-                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showOnBosses", config.canShowOnBosses()).setDefaultValue(true).setSaveConsumer(b -> config.showOnBosses = b).build())
-                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("showOnlyFocused", config.showingOnlyFocused()).setDefaultValue(false).setSaveConsumer(b -> config.showOnlyFocused = b).build())
-                .addEntry(ConfigEntryBuilder.create().startBooleanToggle("enableDebugInfo", config.isDebugInfoEnabled()).setDefaultValue(false).setSaveConsumer(b -> config.enableDebugInfo = b).build())
-                .addEntry(ConfigEntryBuilder.create().startStrList("blacklist", Lists.newArrayList(config.getBlacklist())).setCellErrorSupplier(value -> Optional.ofNullable(!Identifier.isValid(value) ? I18n.translate("config.orderly.error.invalid_identifier", value) : null)).setDefaultValue(Lists.newArrayList(blacklistDefaults)).setExpended(true).setSaveConsumer(strings -> config.blacklist = strings.stream().filter(Identifier::isValid).map(Identifier::new).map(Identifier::toString).collect(Collectors.toSet())).build())
-                .addEntry(ConfigEntryBuilder.create().startStrList("bosses", Lists.newArrayList(config.getBosses())).setCellErrorSupplier(value -> Optional.ofNullable(!Identifier.isValid(value) ? I18n.translate("config.orderly.error.invalid_identifier", value) : null)).setDefaultValue(Lists.newArrayList(bossDefaults)).setExpended(true).setSaveConsumer(strings -> config.bosses = strings.stream().filter(Identifier::isValid).map(Identifier::new).map(Identifier::toString).collect(Collectors.toSet())).build());
+        builder.getOrCreateCategory(new LiteralText("general"))
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle(new TranslatableText(String.format("config.%s.draw", Orderly.MODID)), config.canDraw()).setDefaultValue(true).setSaveConsumer(b -> config.draw = b).build())
+                .addEntry(ConfigEntryBuilder.create().startIntField(new TranslatableText(String.format("config.%s.maxDistance", Orderly.MODID)), config.getMaxDistance()).setDefaultValue(24).setSaveConsumer(i -> config.maxDistance = i).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle(new TranslatableText(String.format("config.%s.renderInF1", Orderly.MODID)), config.canRenderInF1()).setDefaultValue(false).setSaveConsumer(b -> config.renderInF1 = b).build())
+                .addEntry(ConfigEntryBuilder.create().startFloatField(new TranslatableText(String.format("config.%s.healthBarScale", Orderly.MODID)), config.getHealthBarScale()).setDefaultValue(1.0F).setSaveConsumer(d -> config.healthBarScale = d).build())
+                .addEntry(ConfigEntryBuilder.create().startDoubleField(new TranslatableText(String.format("config.%s.heightAbove", Orderly.MODID)), config.getHeightAbove()).setDefaultValue(0.6D).setSaveConsumer(d -> config.heightAbove = d).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle(new TranslatableText(String.format("config.%s.drawBackground", Orderly.MODID)), config.drawsBackground()).setDefaultValue(true).setSaveConsumer(b -> config.drawBackground = b).build())
+                .addEntry(ConfigEntryBuilder.create().startIntField(new TranslatableText(String.format("config.%s.backgroundPadding", Orderly.MODID)), config.getBackgroundPadding()).setDefaultValue(2).setSaveConsumer(i -> config.backgroundPadding = i).build())
+                .addEntry(ConfigEntryBuilder.create().startIntField(new TranslatableText(String.format("config.%s.backgroundHeight", Orderly.MODID)), config.getBackgroundHeight()).setDefaultValue(6).setSaveConsumer(i -> config.backgroundHeight = i).build())
+                .addEntry(ConfigEntryBuilder.create().startIntField(new TranslatableText(String.format("config.%s.barHeight", Orderly.MODID)), config.getBarHeight()).setDefaultValue(4).setSaveConsumer(i -> config.barHeight = i).build())
+                .addEntry(ConfigEntryBuilder.create().startIntField(new TranslatableText(String.format("config.%s.plateSize", Orderly.MODID)), config.getPlateSize()).setDefaultValue(25).setSaveConsumer(i -> config.plateSize = i).build())
+                .addEntry(ConfigEntryBuilder.create().startIntField(new TranslatableText(String.format("config.%s.plateSizeBoss", Orderly.MODID)), config.getPlateSizeBoss()).setDefaultValue(50).setSaveConsumer(i -> config.plateSizeBoss = i).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle(new TranslatableText(String.format("config.%s.showAttributes", Orderly.MODID)), config.canShowAttributes()).setDefaultValue(true).setSaveConsumer(b -> config.showAttributes = b).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle(new TranslatableText(String.format("config.%s.showArmor", Orderly.MODID)), config.canShowArmor()).setDefaultValue(true).setSaveConsumer(b -> config.showArmor = b).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle(new TranslatableText(String.format("config.%s.groupArmor", Orderly.MODID)), config.canShowGroupArmor()).setDefaultValue(true).setSaveConsumer(b -> config.groupArmor = b).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle(new TranslatableText(String.format("config.%s.colorByType", Orderly.MODID)), config.colorByType()).setDefaultValue(false).setSaveConsumer(b -> config.colorByType = b).build())
+                .addEntry(ConfigEntryBuilder.create().startIntField(new TranslatableText(String.format("config.%s.hpTextHeight", Orderly.MODID)), config.getHpTextHeight()).setDefaultValue(14).setSaveConsumer(i -> config.hpTextHeight = i).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle(new TranslatableText(String.format("config.%s.showMaxHP", Orderly.MODID)), config.canShowMaxHP()).setDefaultValue(true).setSaveConsumer(b -> config.showMaxHP = b).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle(new TranslatableText(String.format("config.%s.showCurrentHP", Orderly.MODID)), config.showCurrentHP()).setDefaultValue(true).setSaveConsumer(b -> config.showCurrentHP = b).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle(new TranslatableText(String.format("config.%s.showPercentage", Orderly.MODID)), config.canShowPercentage()).setDefaultValue(true).setSaveConsumer(b -> config.showPercentage = b).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle(new TranslatableText(String.format("config.%s.showOnPlayers", Orderly.MODID)), config.canShowOnPlayers()).setDefaultValue(true).setSaveConsumer(b -> config.showOnPlayers = b).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle(new TranslatableText(String.format("config.%s.showOnBosses", Orderly.MODID)), config.canShowOnBosses()).setDefaultValue(true).setSaveConsumer(b -> config.showOnBosses = b).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle(new TranslatableText(String.format("config.%s.showOnlyFocused", Orderly.MODID)), config.showingOnlyFocused()).setDefaultValue(false).setSaveConsumer(b -> config.showOnlyFocused = b).build())
+                .addEntry(ConfigEntryBuilder.create().startBooleanToggle(new TranslatableText(String.format("config.%s.enableDebugInfo", Orderly.MODID)), config.isDebugInfoEnabled()).setDefaultValue(false).setSaveConsumer(b -> config.enableDebugInfo = b).build())
+                .addEntry(ConfigEntryBuilder.create().startStrList(new TranslatableText(String.format("config.%s.blacklist", Orderly.MODID)), Lists.newArrayList(config.getBlacklist())).setCellErrorSupplier(value -> Optional.ofNullable(!Identifier.isValid(value) ? new TranslatableText("config.orderly.error.invalid_identifier") : null)).setDefaultValue(Lists.newArrayList(blacklistDefaults)).setExpended(true).setSaveConsumer(strings -> config.blacklist = strings.stream().filter(Identifier::isValid).map(Identifier::new).map(Identifier::toString).collect(Collectors.toSet())).build())
+                .addEntry(ConfigEntryBuilder.create().startStrList(new TranslatableText(String.format("config.%s.bosses", Orderly.MODID)), Lists.newArrayList(config.getBosses())).setCellErrorSupplier(value -> Optional.ofNullable(!Identifier.isValid(value) ? new TranslatableText("config.orderly.error.invalid_identifier") : null)).setDefaultValue(Lists.newArrayList(bossDefaults)).setExpended(true).setSaveConsumer(strings -> config.bosses = strings.stream().filter(Identifier::isValid).map(Identifier::new).map(Identifier::toString).collect(Collectors.toSet())).build());
         builder.setSavingRunnable(OrderlyConfigManager::save);
         return builder.build();
     }

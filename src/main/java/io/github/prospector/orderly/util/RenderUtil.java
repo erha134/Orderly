@@ -54,8 +54,8 @@ public final class RenderUtil {
             return 0xff000000 | r << 16 | g << 8 | b;
         }
         else {
-            float health = MathHelper.clamp(entity.getHealth(), 0.0F, entity.getMaximumHealth());
-            float hue = Math.max(0.0F, (health / entity.getMaximumHealth()) / 3.0F - 0.07F);
+            float health = MathHelper.clamp(entity.getHealth(), 0.0F, entity.getMaxHealth());
+            float hue = Math.max(0.0F, (health / entity.getMaxHealth()) / 3.0F - 0.07F);
             return Color.HSBtoRGB(hue, 1.0F, 1.0F);
         }
     }

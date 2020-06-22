@@ -14,7 +14,6 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -22,6 +21,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.RayTraceContext;
@@ -139,7 +139,7 @@ public class HealthBarRenderer {
                 if(!config.canShowOnPlayers() && entity instanceof PlayerEntity) {
                     break processing;
                 }
-                if(entity.getMaximumHealth() <= 0.0F) {
+                if(entity.getMaxHealth() <= 0.0F) {
                     break processing;
                 }
                 double x = passedEntity.prevX + (passedEntity.getX() - passedEntity.prevX) * partialTicks;
