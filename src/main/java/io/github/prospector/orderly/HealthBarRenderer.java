@@ -24,7 +24,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.world.RayTraceContext;
+import net.minecraft.world.RaycastContext;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
@@ -59,7 +59,7 @@ public class HealthBarRenderer {
                 frustum = new Frustum(matrices.peek().getModel(), projection);
                 frustum.setPosition(cameraPos.getX(), cameraPos.getY(), cameraPos.getZ());
             }
-            StreamSupport.stream(mc.world.getEntities().spliterator(), false).filter(entity -> entity instanceof LivingEntity && entity != cameraEntity && entity.isAlive() && entity.getPassengersDeep().isEmpty() && entity.shouldRender(cameraPos.getX(), cameraPos.getY(), cameraPos.getZ()) && (entity.ignoreCameraFrustum || frustum.isVisible(entity.getBoundingBox()))).map(LivingEntity.class::cast).forEach(entity -> renderHealthBar(entity, matrices, partialTicks, camera, cameraEntity));
+            StreamSupport.stream(mc.world.getEntities().spliterator(), false).filter(entity -> entity instanceof LivingEntity && entity != cameraEntity && entity.isAlive() && !entity.getPassengersDeep().iterator().hasNext() && entity.shouldRender(cameraPos.getX(), cameraPos.getY(), cameraPos.getZ()) && (entity.ignoreCameraFrustum || frustum.isVisible(entity.getBoundingBox()))).map(LivingEntity.class::cast).forEach(entity -> renderHealthBar(entity, matrices, partialTicks, camera, cameraEntity));
         }
     }
 
@@ -78,12 +78,12 @@ public class HealthBarRenderer {
         Vec3d lookVector = e.getRotationVector();
         Vec3d reachVector = positionVector.add(lookVector.x * finalDistance, lookVector.y * finalDistance, lookVector.z * finalDistance);
         Entity lookedEntity = null;
-        List<Entity> entitiesInBoundingBox = e.getEntityWorld().getEntities(e, e.getBoundingBox().stretch(lookVector.x * finalDistance, lookVector.y * finalDistance, lookVector.z * finalDistance).expand(1.0F));
+        List<Entity> entitiesInBoundingBox = e.getEntityWorld().getOtherEntities(e, e.getBoundingBox().stretch(lookVector.x * finalDistance, lookVector.y * finalDistance, lookVector.z * finalDistance).expand(1.0F));
         double minDistance = distance;
         for(Entity entity : entitiesInBoundingBox) {
             if(entity.collides()) {
                 Box collisionBox = entity.getVisibilityBoundingBox();
-                Optional<Vec3d> interceptPosition = collisionBox.rayTrace(positionVector, reachVector);
+                Optional<Vec3d> interceptPosition = collisionBox.raycast(positionVector, reachVector);
                 if(collisionBox.contains(positionVector)) {
                     if(0.0D < minDistance || minDistance == 0.0D) {
                         lookedEntity = entity;
@@ -146,12 +146,12 @@ public class HealthBarRenderer {
                 double y = passedEntity.prevY + (passedEntity.getY() - passedEntity.prevY) * partialTicks;
                 double z = passedEntity.prevZ + (passedEntity.getZ() - passedEntity.prevZ) * partialTicks;
 
-                EntityRenderDispatcher renderManager = MinecraftClient.getInstance().getEntityRenderManager();
+                EntityRenderDispatcher renderManager = MinecraftClient.getInstance().getEntityRenderDispatcher();
                 matrices.push();
                 {
                     matrices.translate(x - renderManager.camera.getPos().x, y - renderManager.camera.getPos().y + passedEntity.getHeight() + config.getHeightAbove(), z - renderManager.camera.getPos().z);
-                    GL11.glNormal3f(0.0F, 1.0F, 0.0F);
-                    RenderSystem.disableLighting();
+                    // GL11.glNormal3f(0.0F, 1.0F, 0.0F);
+                    // RenderSystem.disableLighting();
                     VertexConsumerProvider.Immediate immediate = mc.getBufferBuilders().getEntityVertexConsumers();
                     ItemStack icon = RenderUtil.getIcon(entity, boss);
                     final int light = 0xF000F0;
@@ -184,6 +184,6 @@ public class HealthBarRenderer {
 
     private static HitResult raycast(Entity entity, Vec3d origin, Vec3d ray, double len) {
         Vec3d next = origin.add(ray.normalize().multiply(len));
-        return entity.getEntityWorld().rayTrace(new RayTraceContext(origin, next, RayTraceContext.ShapeType.OUTLINE, RayTraceContext.FluidHandling.NONE, entity));
+        return entity.getEntityWorld().raycast(new RaycastContext(origin, next, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, entity));
     }
 }
