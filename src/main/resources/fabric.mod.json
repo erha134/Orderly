@@ -36,8 +36,5 @@
     "description": "Minimalistic Functional Unit Plates for the modern Minecrafter. Not a mod by Vazkii.",
     "mixins": [
         "mixins.orderly.json"
-    ],
-    "custom": {
-        "modmenu:clientsideOnly": true
-    }
+    ]
 }
