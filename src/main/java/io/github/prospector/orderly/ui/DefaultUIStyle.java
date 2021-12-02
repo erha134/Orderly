@@ -55,9 +55,11 @@ public class DefaultUIStyle extends SimpleUIStyle {
         Matrix4f modelViewMatrix = entry.getModel();
         Vec3f normal = new Vec3f(0.0F, 1.0F, 0.0F);
         normal.transform(entry.getNormal());
-        VertexConsumer buffer = immediate.getBuffer(RenderLayer.getEntityTranslucent(TEXTURE, false)); // VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL
+        VertexConsumer buffer = immediate.getBuffer(RenderLayer.getTextSeeThrough(TEXTURE)); // VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL
         int barHeight = config.getBarHeight();
         final int overlay = OverlayTexture.DEFAULT_UV;
+
+        RenderSystem.polygonOffset(0.0f, 0.0f);
         // Background
         if (config.drawsBackground()) {
             int bgHeight = config.getBackgroundHeight();
@@ -67,11 +69,18 @@ public class DefaultUIStyle extends SimpleUIStyle {
             buffer.vertex(modelViewMatrix, size + padding, barHeight + padding, 0.0F).color(255, 255, 255, 64).texture(1.0F, 0.5F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
             buffer.vertex(modelViewMatrix, size + padding, -bgHeight, 0.0F).color(255, 255, 255, 64).texture(1.0F, 0.0F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
         }
+        immediate.draw();
+        buffer = immediate.getBuffer(RenderLayer.getTextSeeThrough(TEXTURE));
+        RenderSystem.polygonOffset(0.0f, -1.0f);
         // Health Bar Background
         buffer.vertex(modelViewMatrix, -size, 0, -0.000F).color(255, 255, 255, 127).texture(0.0F, 0.5F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
         buffer.vertex(modelViewMatrix, -size, barHeight, -0.000F).color(255, 255, 255, 127).texture(0.0F, 0.75F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
         buffer.vertex(modelViewMatrix, size, barHeight, -0.000F).color(255, 255, 255, 127).texture(1.0F, 0.75F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
         buffer.vertex(modelViewMatrix, size, 0, -0.000F).color(255, 255, 255, 127).texture(1.0F, 0.5F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
+        immediate.draw();
+
+        buffer = immediate.getBuffer(RenderLayer.getTextSeeThrough(TEXTURE));
+        RenderSystem.polygonOffset(0.0f, -2.0f);
         // Health Bar
         int argb = RenderUtil.getColor(entity, config.colorByType(), boss);
         int r = RenderUtil.getRed(argb);
@@ -81,18 +90,17 @@ public class DefaultUIStyle extends SimpleUIStyle {
         buffer.vertex(modelViewMatrix, -size, barHeight, -0.000F).color(r, g, b, 127).texture(0.0F, 1.0F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
         buffer.vertex(modelViewMatrix, healthSize * 2 - size, barHeight, -0.000F).color(r, g, b, 127).texture(1.0F, 1.0F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
         buffer.vertex(modelViewMatrix, healthSize * 2 - size, 0, -0.000F).color(r, g, b, 127).texture(1.0F, 0.75F).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
+        immediate.draw();
+
+        RenderSystem.polygonOffset(0.0f, -3.0f);
         // Foreground
-        matrices.push();
         {
-            //int light = 0xF000F0;
             int white = 0xFFFFFF;
             int black = 0x000000;
-            //matrices.push();
             matrices.translate(-size, -4.5F, 0.0F);
             matrices.scale(textScale, textScale, textScale);
             modelViewMatrix = matrices.peek().getModel();
-            mc.textRenderer.draw(name, 0, 0, white, false, modelViewMatrix, immediate, false, black, light);
-            //matrices.pop();
+            mc.textRenderer.draw(name, 0, 0, white, false, modelViewMatrix, immediate, true, black, light);
             float s1 = 0.75F;
             matrices.push();
             {
@@ -109,16 +117,16 @@ public class DefaultUIStyle extends SimpleUIStyle {
                     hpStr = hpStr.substring(0, hpStr.length() - 3);
                 }
                 if (config.showCurrentHP()) {
-                    mc.textRenderer.draw(hpStr, 2, h, white, false, modelViewMatrix, immediate, false, black, light);
+                    mc.textRenderer.draw(hpStr, 2, h, white, false, modelViewMatrix, immediate, true, black, light);
                 }
                 if (config.canShowMaxHP()) {
-                    mc.textRenderer.draw(maxHpStr, (int) (size / (textScale * s1) * 2) - 2 - mc.textRenderer.getWidth(maxHpStr), h, white, false, modelViewMatrix, immediate, false, black, light);
+                    mc.textRenderer.draw(maxHpStr, (int) (size / (textScale * s1) * 2) - 2 - mc.textRenderer.getWidth(maxHpStr), h, white, false, modelViewMatrix, immediate, true, black, light);
                 }
                 if (config.canShowPercentage()) {
-                    mc.textRenderer.draw(percStr, (int) (size / (textScale * s1)) - mc.textRenderer.getWidth(percStr) / 2.0F, h, white, false, modelViewMatrix, immediate, false, black, light);
+                    mc.textRenderer.draw(percStr, (int) (size / (textScale * s1)) - mc.textRenderer.getWidth(percStr) / 2.0F, h, white, false, modelViewMatrix, immediate, true, black, light);
                 }
                 if (config.isDebugInfoEnabled() && mc.options.debugEnabled) {
-                    mc.textRenderer.draw(String.format("ID: \"%s\"", Registry.ENTITY_TYPE.getId(entity.getType())), 0, h + 16, white, false, modelViewMatrix, immediate, false, black, light);
+                    mc.textRenderer.draw(String.format("ID: \"%s\"", Registry.ENTITY_TYPE.getId(entity.getType())), 0, h + 16, white, false, modelViewMatrix, immediate, true, black, light);
                 }
             }
             matrices.pop();
@@ -153,20 +161,16 @@ public class DefaultUIStyle extends SimpleUIStyle {
             }
             matrices.pop();
         }
-        matrices.pop();
-        RenderSystem.disableBlend();
-        RenderSystem.enableDepthTest();
-        RenderSystem.depthMask(true);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.polygonOffset(0.0f, 0.0f);
     }
 
-    private void renderIcon(double x, double y, ItemStack stack, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int overlay, int light) {
+    private void renderIcon(double x, double y, ItemStack stack, MatrixStack matrices, VertexConsumerProvider.Immediate vertexConsumers, int overlay, int light) {
         MinecraftClient mc = MinecraftClient.getInstance();
         matrices.push();
         matrices.translate(x, y, -0.002D);
         matrices.scale(16.0F, 16.0F, 1.0F);
         try {
-            VertexConsumer buffer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, false));
+            VertexConsumer buffer = vertexConsumers.getBuffer(RenderLayer.getTextSeeThrough(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE));
             BakedModel bakedModel = mc.getItemRenderer().getModels().getModel(stack);
             Sprite textureAtlasSprite = bakedModel.getSprite();
             MatrixStack.Entry entry = matrices.peek();
@@ -181,5 +185,6 @@ public class DefaultUIStyle extends SimpleUIStyle {
             //TODO exception handling?
         }
         matrices.pop();
+        vertexConsumers.draw();
     }
 }

@@ -1,6 +1,7 @@
 package io.github.prospector.orderly;
 
 import com.google.common.base.Preconditions;
+import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.prospector.orderly.api.UIManager;
 import io.github.prospector.orderly.api.UIStyle;
 import io.github.prospector.orderly.api.config.OrderlyConfig;
@@ -51,7 +52,23 @@ public class HealthBarRenderer {
                 frustum = new Frustum(matrices.peek().getModel(), projection);
                 frustum.setPosition(cameraPos.getX(), cameraPos.getY(), cameraPos.getZ());
             }
+//            MatrixStack matrixStack = RenderSystem.getModelViewStack();
+//            matrixStack.pop();
+//            matrixStack.push();
+//            RenderSystem.applyModelViewMatrix();
+
+            // 让血条显示在最前面
+            RenderSystem.disableDepthTest();
+            RenderSystem.depthMask(false);
+            RenderSystem.enablePolygonOffset();
             StreamSupport.stream(mc.world.getEntities().spliterator(), false).filter(entity -> entity instanceof LivingEntity && entity != cameraEntity && entity.isAlive() && !entity.getPassengersDeep().iterator().hasNext() && entity.shouldRender(cameraPos.getX(), cameraPos.getY(), cameraPos.getZ()) && (entity.ignoreCameraFrustum || frustum.isVisible(entity.getBoundingBox()))).map(LivingEntity.class::cast).forEach(entity -> renderHealthBar(entity, matrices, partialTicks, camera, cameraEntity));
+            RenderSystem.depthMask(true);
+            RenderSystem.disablePolygonOffset();
+            RenderSystem.enableDepthTest();
+//            matrixStack.pop();
+//            matrixStack.push();
+//            matrixStack.method_34425(matrices.peek().getModel());
+//            RenderSystem.applyModelViewMatrix();
         }
     }
 
@@ -105,8 +122,8 @@ public class HealthBarRenderer {
         Stack<LivingEntity> passengerStack = new Stack<>();
         LivingEntity entity = passedEntity;
         passengerStack.push(entity);
-        while (entity.getPrimaryPassenger() instanceof LivingEntity) {
-            entity = (LivingEntity) entity.getPrimaryPassenger();
+        while (entity.getVehicle() instanceof LivingEntity) {
+            entity = (LivingEntity) entity.getVehicle();
             passengerStack.push(entity);
         }
         matrices.push();
@@ -120,8 +137,8 @@ public class HealthBarRenderer {
             }
             processing:
             {
-                float distance = passedEntity.distanceTo(viewPoint);
-                if (distance > config.getMaxDistance() || !passedEntity.canSee(viewPoint) || entity.isInvisible()) {
+                float distance = entity.distanceTo(viewPoint);
+                if (distance > config.getMaxDistance() || !entity.canSee(viewPoint) || entity.isInvisible()) {
                     break processing;
                 }
                 if (boss && !config.canShowOnBosses()) {
@@ -133,14 +150,14 @@ public class HealthBarRenderer {
                 if (entity.getMaxHealth() <= 0.0F) {
                     break processing;
                 }
-                double x = passedEntity.prevX + (passedEntity.getX() - passedEntity.prevX) * partialTicks;
-                double y = passedEntity.prevY + (passedEntity.getY() - passedEntity.prevY) * partialTicks;
-                double z = passedEntity.prevZ + (passedEntity.getZ() - passedEntity.prevZ) * partialTicks;
+                double x = entity.prevX + (entity.getX() - entity.prevX) * partialTicks;
+                double y = entity.prevY + (entity.getY() - entity.prevY) * partialTicks;
+                double z = entity.prevZ + (entity.getZ() - entity.prevZ) * partialTicks;
 
                 EntityRenderDispatcher renderManager = MinecraftClient.getInstance().getEntityRenderDispatcher();
                 matrices.push();
                 {
-                    matrices.translate(x - renderManager.camera.getPos().x, y - renderManager.camera.getPos().y + passedEntity.getHeight() + config.getHeightAbove(), z - renderManager.camera.getPos().z);
+                    matrices.translate(x - renderManager.camera.getPos().x, y - renderManager.camera.getPos().y + entity.getHeight() + config.getHeightAbove(), z - renderManager.camera.getPos().z);
                     // GL11.glNormal3f(0.0F, 1.0F, 0.0F);
                     // RenderSystem.disableLighting();
                     VertexConsumerProvider.Immediate immediate = mc.getBufferBuilders().getEntityVertexConsumers();
@@ -153,7 +170,6 @@ public class HealthBarRenderer {
                     }
                 }
                 matrices.pop();
-                matrices.translate(0.0D, -(config.getBackgroundHeight() + config.getBarHeight() + config.getBackgroundPadding()), 0.0D);
             }
         }
         matrices.pop();
