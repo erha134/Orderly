@@ -49,7 +49,7 @@ public class HealthBarRenderer {
             if (capturedFrustum != null) {
                 frustum = capturedFrustum;
             } else {
-                frustum = new Frustum(matrices.peek().getModel(), projection);
+                frustum = new Frustum(matrices.peek().getPositionMatrix(), projection);
                 frustum.setPosition(cameraPos.getX(), cameraPos.getY(), cameraPos.getZ());
             }
 //            MatrixStack matrixStack = RenderSystem.getModelViewStack();

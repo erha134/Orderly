@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.7.11",
   "package": "io.github.prospector.orderly.mixin",
-  "compatibilityLevel": "JAVA_8",
+  "compatibilityLevel": "JAVA_17",
   "client": [
     "MixinHealthBarRender"
   ],

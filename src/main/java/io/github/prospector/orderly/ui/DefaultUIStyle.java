@@ -52,9 +52,9 @@ public class DefaultUIStyle extends SimpleUIStyle {
         }
         float healthSize = size * (health / entity.getMaxHealth());
         MatrixStack.Entry entry = matrices.peek();
-        Matrix4f modelViewMatrix = entry.getModel();
+        Matrix4f modelViewMatrix = entry.getPositionMatrix();
         Vec3f normal = new Vec3f(0.0F, 1.0F, 0.0F);
-        normal.transform(entry.getNormal());
+        normal.transform(entry.getNormalMatrix());
         VertexConsumer buffer = immediate.getBuffer(RenderLayer.getTextSeeThrough(TEXTURE)); // VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL
         int barHeight = config.getBarHeight();
         final int overlay = OverlayTexture.DEFAULT_UV;
@@ -99,13 +99,13 @@ public class DefaultUIStyle extends SimpleUIStyle {
             int black = 0x000000;
             matrices.translate(-size, -4.5F, 0.0F);
             matrices.scale(textScale, textScale, textScale);
-            modelViewMatrix = matrices.peek().getModel();
+            modelViewMatrix = matrices.peek().getPositionMatrix();
             mc.textRenderer.draw(name, 0, 0, white, false, modelViewMatrix, immediate, true, black, light);
             float s1 = 0.75F;
             matrices.push();
             {
                 matrices.scale(s1, s1, s1);
-                modelViewMatrix = matrices.peek().getModel();
+                modelViewMatrix = matrices.peek().getPositionMatrix();
                 int h = config.getHpTextHeight();
                 String maxHpStr = String.format("%s%.2f", Formatting.BOLD, entity.getMaxHealth()).replaceAll("\\.00$", "");
                 String hpStr = String.format("%.2f", health).replaceAll("\\.00$", "");
@@ -172,11 +172,11 @@ public class DefaultUIStyle extends SimpleUIStyle {
         try {
             VertexConsumer buffer = vertexConsumers.getBuffer(RenderLayer.getTextSeeThrough(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE));
             BakedModel bakedModel = mc.getItemRenderer().getModels().getModel(stack);
-            Sprite textureAtlasSprite = bakedModel.getSprite();
+            Sprite textureAtlasSprite = bakedModel.getParticleSprite();
             MatrixStack.Entry entry = matrices.peek();
-            Matrix4f modelViewMatrix = entry.getModel();
+            Matrix4f modelViewMatrix = entry.getPositionMatrix();
             Vec3f normal = new Vec3f(0.0F, 1.0F, 0.0F);
-            normal.transform(entry.getNormal());
+            normal.transform(entry.getNormalMatrix());
             buffer.vertex(modelViewMatrix, 0.0F, 0.0F, 0.0F).color(255, 255, 255, 255).texture(textureAtlasSprite.getMinU(), textureAtlasSprite.getMinV()).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
             buffer.vertex(modelViewMatrix, 0.0F, 1.0F, 0.0F).color(255, 255, 255, 255).texture(textureAtlasSprite.getMinU(), textureAtlasSprite.getMaxV()).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();
             buffer.vertex(modelViewMatrix, 1.0F, 1.0F, 0.0F).color(255, 255, 255, 255).texture(textureAtlasSprite.getMaxU(), textureAtlasSprite.getMaxV()).overlay(overlay).light(light).normal(normal.getX(), normal.getY(), normal.getZ()).next();

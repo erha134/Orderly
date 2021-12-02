@@ -3,11 +3,11 @@ plugins {
     id 'maven-publish'
     id 'idea'
     id 'eclipse'
-    id 'fabric-loom' version '0.8-SNAPSHOT'
+    id 'fabric-loom' version '0.10-SNAPSHOT'
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 archivesBaseName = project.archive_name
 version = project.mod_version
@@ -17,7 +17,7 @@ def ENV = System.getenv()
 def buildNumber = "+" + (ENV.BUILD_NUMBER ? ("build." + ENV.BUILD_NUMBER) : "custom")
 def buildMeta = (!ENV.TAG || ENV.TAG.endsWith("-beta") || ENV.TAG.endsWith("-alpha")) ? buildNumber : ""
 def modVersion = (ENV.TAG ?: version)
-version = "${modVersion}${buildMeta}-1.17"
+version = "${modVersion}${buildMeta}-1.18"
 
 
 repositories {
@@ -26,7 +26,7 @@ repositories {
 }
 
 loom {
-    accessWidener "src/main/resources/orderly.accesswidener"
+    accessWidenerPath = file("src/main/resources/orderly.accesswidener")
 }
 
 dependencies {
