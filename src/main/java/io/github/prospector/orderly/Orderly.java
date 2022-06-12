@@ -5,9 +5,10 @@ import io.github.prospector.orderly.config.OrderlyConfigManager;
 import io.github.prospector.orderly.ui.DefaultUIStyle;
 import io.github.prospector.orderly.ui.SaoUIStyle;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.keybinding.FabricKeyBinding;
-import net.fabricmc.fabric.api.client.keybinding.KeyBindingRegistry;
-import net.fabricmc.fabric.api.event.client.ClientTickCallback;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.Level;
@@ -18,7 +19,7 @@ import org.apache.logging.log4j.core.config.Configurator;
 public class Orderly implements ClientModInitializer {
 
     public static final String MODID = "orderly";
-    private static FabricKeyBinding toggleKey;
+    private static KeyBinding toggleKey;
     private static final Logger log = LogManager.getLogger(MODID);
 
     public static Logger getLogger() {
@@ -41,10 +42,10 @@ public class Orderly implements ClientModInitializer {
         UIManager.registerStyle(saoStyle, SaoUIStyle::new);
         UIManager.setCurrentStyle(defaultStyle);
         OrderlyConfigManager.init();
-        toggleKey = FabricKeyBinding.Builder.create(new Identifier(Orderly.MODID, "toggle"), InputUtil.Type.KEYSYM, InputUtil.UNKNOWN_KEY.getCode(), "key.categories.misc").build();
-        KeyBindingRegistry.INSTANCE.register(toggleKey);
-        ClientTickCallback.EVENT.register(event -> {
-            if (event.isWindowFocused() && toggleKey.wasPressed()) {
+        toggleKey = new KeyBinding(I18n.translate("key.orderly.toggle"), InputUtil.Type.KEYSYM, InputUtil.UNKNOWN_KEY.getCode(), "key.categories.misc");
+        KeyBindingHelper.registerKeyBinding(toggleKey);
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (client.isWindowFocused() && toggleKey.wasPressed()) {
                 OrderlyConfigManager.getConfig().toggleDraw();
                 OrderlyConfigManager.save();
             }
