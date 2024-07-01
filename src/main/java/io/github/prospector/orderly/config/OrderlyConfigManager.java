@@ -27,7 +27,7 @@ public class OrderlyConfigManager {
     }
 
     public static OrderlyConfigImpl init() {
-        configFile = FabricLoader.getInstance().getConfigDirectory().toPath().resolve(Orderly.MODID + ".json");
+        configFile = FabricLoader.getInstance().getConfigDir().resolve(Orderly.MODID + ".json");
         if (!Files.exists(configFile)) {
             Orderly.getLogger().info("creating orderly config file ({})", configFile::getFileName);
             save().join();

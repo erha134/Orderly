@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
     id 'idea'
     id 'eclipse'
-    id 'fabric-loom' version '0.12-SNAPSHOT'
+    id 'fabric-loom' version '1.6-SNAPSHOT'
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -53,9 +53,8 @@ tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = "sources"
-    from sourceSets.main.allSource
+java {
+    withSourcesJar()
 }
 
 jar {

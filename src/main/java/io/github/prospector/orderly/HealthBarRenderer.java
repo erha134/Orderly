@@ -90,7 +90,7 @@ public class HealthBarRenderer {
         List<Entity> entitiesInBoundingBox = e.getEntityWorld().getOtherEntities(e, e.getBoundingBox().stretch(lookVector.x * finalDistance, lookVector.y * finalDistance, lookVector.z * finalDistance).expand(1.0F));
         double minDistance = distance;
         for (Entity entity : entitiesInBoundingBox) {
-            if (entity.collides()) {
+            if (entity.collidesWith(e)) { // TODO
                 Box collisionBox = entity.getVisibilityBoundingBox();
                 Optional<Vec3d> interceptPosition = collisionBox.raycast(positionVector, reachVector);
                 if (collisionBox.contains(positionVector)) {
